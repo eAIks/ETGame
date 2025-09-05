@@ -38,6 +38,14 @@ namespace ET.Client
 
         public static async ETTask<long> LoginAsync(this ClientSenderComponent self, string account, string password)
         {
+            // 如果之前有 NetClient Fiber，先清理
+            if (self.fiberId != 0)
+            {
+                Log.Info($"清理之前的 NetClient Fiber: {self.fiberId}");
+                await FiberManager.Instance.Remove(self.fiberId);
+                self.fiberId = 0;
+            }
+            
             self.fiberId = await FiberManager.Instance.Create(SchedulerType.ThreadPool, 0, SceneType.NetClient, "");
             self.netClientActorId = new ActorId(self.Fiber().Process, self.fiberId);
 
@@ -47,6 +55,48 @@ namespace ET.Client
             main2NetClientLogin.Password = password;
             NetClient2Main_Login response = await self.Root().GetComponent<ProcessInnerSender>().Call(self.netClientActorId, main2NetClientLogin) as NetClient2Main_Login;
             return response.PlayerId;
+        }
+
+        public static async ETTask<int> RegisterAsync(this ClientSenderComponent self, string account, string password)
+        {
+            // 如果之前有 NetClient Fiber，先清理
+            if (self.fiberId != 0)
+            {
+                Log.Info($"清理之前的 NetClient Fiber: {self.fiberId}");
+                await FiberManager.Instance.Remove(self.fiberId);
+                self.fiberId = 0;
+            }
+            
+            self.fiberId = await FiberManager.Instance.Create(SchedulerType.ThreadPool, 0, SceneType.NetClient, "");
+            self.netClientActorId = new ActorId(self.Fiber().Process, self.fiberId);
+
+            // 等待 NetClient Fiber 完全初始化
+            await self.Root().GetComponent<TimerComponent>().WaitAsync(300);
+            
+            Main2NetClient_Register main2NetClientRegister = Main2NetClient_Register.Create();
+            main2NetClientRegister.OwnerFiberId = self.Fiber().Id;
+            main2NetClientRegister.Account = account;
+            main2NetClientRegister.Password = password;
+            try
+            {
+                IResponse rawResponse = await self.Root().GetComponent<ProcessInnerSender>().Call(self.netClientActorId, main2NetClientRegister);
+                Log.Info($"注册原始响应: {rawResponse?.GetType()?.Name}, {rawResponse}");
+                
+                NetClient2Main_Register response = rawResponse as NetClient2Main_Register;
+                if (response == null)
+                {
+                    Log.Error($"响应类型转换失败: 期望 NetClient2Main_Register, 实际 {rawResponse?.GetType()?.Name}");
+                    return ErrorCode.ERR_PasswordError; // 返回一个通用错误码
+                }
+                
+                Log.Info($"注册响应: Error={response.Error}, Message={response.Message}");
+                return response.Error;
+            }
+            catch (System.Exception ex)
+            {
+                Log.Error($"注册调用异常: {ex}");
+                throw;
+            }
         }
 
         public static void Send(this ClientSenderComponent self, IMessage message)

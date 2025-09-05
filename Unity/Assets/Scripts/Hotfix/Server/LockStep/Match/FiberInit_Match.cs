@@ -16,6 +16,7 @@ namespace ET.Server
             root.AddComponent<MatchComponent>();
             root.AddComponent<LocationProxyComponent>();
             root.AddComponent<MessageLocationSenderComponent>();
+            root.AddComponent<DBManagerComponent>();
 
             await ETTask.CompletedTask;
         }

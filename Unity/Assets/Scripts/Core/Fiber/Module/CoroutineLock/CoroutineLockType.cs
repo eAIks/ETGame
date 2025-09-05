@@ -10,6 +10,7 @@ namespace ET
         public const int DB = 5;
         public const int Resources = 6;
         public const int ResourcesLoader = 7;
+        public const int Register = 8;                   // 注册时使用，防止同账号并发注册
 
         public const int Max = 100; // 这个必须最大
     }

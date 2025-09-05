@@ -19,3 +19,19 @@ message NetClient2Main_Login // IResponse
 
 	int64 PlayerId = 4;
 }
+
+// ResponseType NetClient2Main_Register
+message Main2NetClient_Register // IRequest
+{
+	int32 RpcId = 1;
+	int32 OwnerFiberId = 2;
+	string Account = 3;		// 账号
+	string Password = 4; 	// 密码
+}
+
+message NetClient2Main_Register // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+}

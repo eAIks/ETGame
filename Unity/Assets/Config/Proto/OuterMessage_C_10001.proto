@@ -160,6 +160,21 @@ message R2C_Login // ISessionResponse
 	int64 GateId = 6;
 }
 
+// ResponseType R2C_Register
+message C2R_Register // ISessionRequest
+{
+	int32 RpcId = 1;
+	string  Account = 2;  // 帐号
+	string  Password = 3;  // 密码
+}
+
+message R2C_Register // ISessionResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+}
+
 // ResponseType G2C_LoginGate
 message C2G_LoginGate // ISessionRequest
 {
