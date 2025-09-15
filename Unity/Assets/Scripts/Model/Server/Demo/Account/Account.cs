@@ -6,5 +6,6 @@ namespace ET.Server
         public string AccountName { get; set; }
         public string Password { get; set; }
         public long CreateTime { get; set; }
+        public string AccountUUID { get; set; }
     }
 }

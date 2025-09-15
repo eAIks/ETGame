@@ -30,7 +30,18 @@ namespace ET.Client
             Log.Info($"start get router address: {netComponent.Root().Id} {address} {localConn} {remoteConn}");
             //return (RandomHelper.RandUInt32(), address);
             RouterAddressComponent routerAddressComponent = netComponent.Root().GetComponent<RouterAddressComponent>();
+            if (routerAddressComponent == null)
+            {
+                Log.Error("GetRouterAddress: RouterAddressComponent is null");
+                return (0, null);
+            }
+            
             IPEndPoint routerInfo = routerAddressComponent.GetAddress();
+            if (routerInfo == null)
+            {
+                Log.Error("GetRouterAddress: Failed to get router address");
+                return (0, null);
+            }
             
             uint recvLocalConn = await netComponent.Connect(routerInfo, address, localConn, remoteConn);
             

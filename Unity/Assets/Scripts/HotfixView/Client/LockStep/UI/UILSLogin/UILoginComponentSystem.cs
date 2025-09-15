@@ -22,10 +22,30 @@ namespace ET.Client
 
         public static void OnLogin(this UILSLoginComponent self)
         {
-            LoginHelper.Login(
-                self.Root(),
-                self.account.GetComponent<InputField>().text,
-                self.password.GetComponent<InputField>().text).Coroutine();
+            string account = self.account.GetComponent<InputField>().text;
+            string password = self.password.GetComponent<InputField>().text;
+            
+            if (string.IsNullOrEmpty(account) || string.IsNullOrEmpty(password))
+                return;
+                
+            self.LoginAsync(account, password).Coroutine();
+        }
+
+        private static async ETTask LoginAsync(this UILSLoginComponent self, string account, string password)
+        {
+            try
+            {
+                self.Root().RemoveComponent<ClientSenderComponent>();
+                ClientSenderComponent clientSenderComponent = self.Root().AddComponent<ClientSenderComponent>();
+                
+                long playerId = await clientSenderComponent.LoginAsync(account, password);
+                self.Root().GetComponent<PlayerComponent>().MyId = playerId;
+                await EventSystem.Instance.PublishAsync(self.Root(), new LoginFinish());
+            }
+            catch (System.Exception ex)
+            {
+                Log.Error($"登录异常: {ex.Message}");
+            }
         }
     }
 }

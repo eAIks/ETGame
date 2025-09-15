@@ -51,8 +51,16 @@ namespace ET.Client
 
         public static IPEndPoint GetAddress(this RouterAddressComponent self)
         {
-            if (self.Info.Routers.Count == 0)
+            // 防御性检查：确保Info不为空且Routers列表不为空
+            if (self.Info == null)
             {
+                Log.Warning("RouterAddressComponent.GetAddress: Info is null, router may not be initialized yet");
+                return null;
+            }
+            
+            if (self.Info.Routers == null || self.Info.Routers.Count == 0)
+            {
+                Log.Warning("RouterAddressComponent.GetAddress: Routers list is null or empty");
                 return null;
             }
 
@@ -69,6 +77,19 @@ namespace ET.Client
         
         public static IPEndPoint GetRealmAddress(this RouterAddressComponent self, string account)
         {
+            // 防御性检查：确保Info不为空且Realms列表不为空
+            if (self.Info == null)
+            {
+                Log.Warning("RouterAddressComponent.GetRealmAddress: Info is null, router may not be initialized yet");
+                return null;
+            }
+            
+            if (self.Info.Realms == null || self.Info.Realms.Count == 0)
+            {
+                Log.Warning("RouterAddressComponent.GetRealmAddress: Realms list is null or empty");
+                return null;
+            }
+            
             int v = account.Mode(self.Info.Realms.Count);
             string address = self.Info.Realms[v];
             string[] ss = address.Split(':');

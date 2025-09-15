@@ -1,0 +1,7 @@
+{"dict": [
+[1001, {"_t":"ServerConfig","_id":1001,"GroupId":1,"ServerName":"新手村01","Host":"192.168.1.101","Port":8001,"MaxPlayers":1000,"Status":1,"OpenTime":1640995200000,"Weight":100}],
+[1002, {"_t":"ServerConfig","_id":1002,"GroupId":1,"ServerName":"新手村02","Host":"192.168.1.102","Port":8002,"MaxPlayers":1000,"Status":1,"OpenTime":1640995200000,"Weight":100}],
+[2001, {"_t":"ServerConfig","_id":2001,"GroupId":2,"ServerName":"勇士城01","Host":"192.168.1.201","Port":8101,"MaxPlayers":1500,"Status":1,"OpenTime":1640995200000,"Weight":150}],
+[2002, {"_t":"ServerConfig","_id":2002,"GroupId":2,"ServerName":"勇士城02","Host":"192.168.1.202","Port":8102,"MaxPlayers":1500,"Status":1,"OpenTime":1640995200000,"Weight":150}],
+[3001, {"_t":"ServerConfig","_id":3001,"GroupId":3,"ServerName":"王者谷01","Host":"192.168.1.301","Port":8201,"MaxPlayers":2000,"Status":1,"OpenTime":1641081600000,"Weight":200}],
+]}

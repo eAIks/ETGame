@@ -1,0 +1,55 @@
+using UnityEngine;
+
+namespace ET.Client
+{
+    // [UIEvent(UIType.UISelectServer)] // 临时禁用，使用UISelectServerEvent_Temp
+    public class UISelectServerEvent : AUIEvent
+    {
+        public override async ETTask<UI> OnCreate(UIComponent uiComponent, UILayer uiLayer)
+        {
+            Log.Info("UISelectServerEvent: 开始创建UI");
+            string assetsName = $"Assets/Bundles/UI/Demo/{UIType.UISelectServer}.prefab";
+            Log.Info($"UISelectServerEvent: 尝试加载预制体: {assetsName}");
+            
+            try
+            {
+                GameObject bundleGameObject = await uiComponent.Scene().GetComponent<ResourcesLoaderComponent>().LoadAssetAsync<GameObject>(assetsName);
+                if (bundleGameObject == null)
+                {
+                    Log.Error($"UISelectServerEvent: 预制体加载失败: {assetsName}");
+                    throw new System.Exception($"Failed to load prefab: {assetsName}");
+                }
+                
+                Log.Info("UISelectServerEvent: 预制体加载成功，开始实例化");
+                Transform parentLayer = uiComponent.UIGlobalComponent.GetLayer((int)uiLayer);
+                Log.Info($"UISelectServerEvent: 父级Layer对象: {parentLayer?.name}, UILayer: {uiLayer}");
+                
+                GameObject gameObject = UnityEngine.Object.Instantiate(bundleGameObject, parentLayer);
+                Log.Info($"UISelectServerEvent: GameObject创建成功: {gameObject.name}, active: {gameObject.activeInHierarchy}");
+                
+                // 检查GameObject的位置和大小
+                RectTransform rectTransform = gameObject.GetComponent<RectTransform>();
+                if (rectTransform != null)
+                {
+                    Log.Info($"UISelectServerEvent: RectTransform - anchoredPosition: {rectTransform.anchoredPosition}, sizeDelta: {rectTransform.sizeDelta}");
+                }
+                
+                UI ui = uiComponent.AddChild<UI, string, GameObject>(UIType.UISelectServer, gameObject);
+                ui.AddComponent<UISelectServerComponent>();
+                Log.Info("UISelectServerEvent: UI创建成功");
+                return ui;
+            }
+            catch (System.Exception e)
+            {
+                Log.Error($"UISelectServerEvent: 创建UI失败: {e.Message}");
+                Log.Error($"异常堆栈: {e.StackTrace}");
+                throw;
+            }
+        }
+
+        public override void OnRemove(UIComponent uiComponent)
+        {
+            
+        }
+    }
+}

@@ -18,7 +18,10 @@
 
             await EventSystem.Instance.PublishAsync(root, new AppStartInitFinish());
             
-            await LoginHelper.Login(root, root.Name, "");
+            root.RemoveComponent<ClientSenderComponent>();
+            ClientSenderComponent clientSenderComponent = root.AddComponent<ClientSenderComponent>();
+            long playerId = await clientSenderComponent.LoginAsync(root.Name, "");
+            root.GetComponent<PlayerComponent>().MyId = playerId;
             
             await EnterMapHelper.EnterMapAsync(root);
             

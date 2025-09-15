@@ -56,7 +56,7 @@ namespace ET.Client
                 return;
             }
 
-            LoginHelper.Login(self.Root(), accountText, passwordText).Coroutine();
+            self.LoginAsync(accountText, passwordText).Coroutine();
         }
 
         public static void OnRegister(this UILoginComponent self)
@@ -64,93 +64,67 @@ namespace ET.Client
             string accountText = self.reAccount.GetComponent<InputField>().text;
             string passwordText = self.rePassword.GetComponent<InputField>().text;
 
-            if (!self.IsValidAccount(accountText))
+            if (!self.IsValidAccount(accountText) || !self.IsValidPassword(passwordText))
             {
-                Log.Warning("账号格式不正确：应为3-20个字符，只能包含字母、数字和下划线");
                 return;
             }
 
-            if (!self.IsValidPassword(passwordText))
-            {
-                Log.Warning("密码格式不正确：应为6-20个字符");
-                return;
-            }
-
-            // // 禁用UI防止重复点击
-            // self.SetUIInteractable(false);
-
-            self.RegisterAsync().Coroutine();
+            self.RegisterAsync(accountText, passwordText).Coroutine();
         }
 
-        private static async ETTask RegisterAsync(this UILoginComponent self)
+        private static async ETTask RegisterAsync(this UILoginComponent self, string account, string password)
         {
-            string accountText = self.reAccount.GetComponent<InputField>().text;
-            string passwordText = self.rePassword.GetComponent<InputField>().text;
-
             try
             {
-                Log.Info("正在注册...");
-
-                // 创建客户端发送组件
                 self.Root().RemoveComponent<ClientSenderComponent>();
                 ClientSenderComponent clientSenderComponent = self.Root().AddComponent<ClientSenderComponent>();
-
-                // 移除等待时间，问题可能在其他地方
                 
-                // 调用注册方法
-                int errorCode = await clientSenderComponent.RegisterAsync(accountText, passwordText);
+                int errorCode = await clientSenderComponent.RegisterAsync(account, password);
 
-                switch (errorCode)
+                if (errorCode == ErrorCode.ERR_Success)
                 {
-                    case ErrorCode.ERR_Success:
-                        Log.Info("注册成功，自动登录中...");
-                        // 注册成功后自动登录
-                        long playerId = await clientSenderComponent.LoginAsync(accountText, passwordText);
-                        self.Root().GetComponent<PlayerComponent>().MyId = playerId;
-                        await EventSystem.Instance.PublishAsync(self.Root(), new LoginFinish());
-                        break;
-                    case ErrorCode.ERR_AccountAlreadyRegister:
-                        Log.Warning("账号已存在，请更换账号");
-                        self.SetUIInteractable(true);
-                        break;
-                    case ErrorCode.ERR_AccountNameFormError:
-                        Log.Warning("账号格式不正确");
-                        self.SetUIInteractable(true);
-                        break;
-                    case ErrorCode.ERR_PasswordFormError:
-                        Log.Warning("密码格式不正确");
-                        self.SetUIInteractable(true);
-                        break;
-                    default:
-                        Log.Warning($"注册失败，错误代码: {errorCode}");
-                        self.SetUIInteractable(true);
-                        break;
+                    long playerId = await clientSenderComponent.LoginAsync(account, password);
+                    self.Root().GetComponent<PlayerComponent>().MyId = playerId;
+                    await EventSystem.Instance.PublishAsync(self.Root(), new LoginFinish());
+                }
+                else
+                {
+                    Log.Warning($"注册失败: {errorCode}");
                 }
             }
             catch (System.Exception ex)
             {
-                Log.Error($"注册过程中发生异常: {ex.Message}");
-                self.SetUIInteractable(true);
+                Log.Error($"注册异常: {ex.Message}");
+            }
+        }
+
+        private static async ETTask LoginAsync(this UILoginComponent self, string account, string password)
+        {
+            try
+            {
+                self.Root().RemoveComponent<ClientSenderComponent>();
+                ClientSenderComponent clientSenderComponent = self.Root().AddComponent<ClientSenderComponent>();
+                
+                long playerId = await clientSenderComponent.LoginAsync(account, password);
+                self.Root().GetComponent<PlayerComponent>().MyId = playerId;
+                await EventSystem.Instance.PublishAsync(self.Root(), new LoginFinish());
+            }
+            catch (System.Exception ex)
+            {
+                Log.Error($"登录异常: {ex.Message}");
             }
         }
 
         public static void OnShowRegisterPanel(this UILoginComponent self)
         {
-            Log.Info("显示注册页面");
-
             self.loginPanel.SetActive(false);
-
             self.registerPanel.SetActive(true);
         }
 
         public static void OnShowLoginPanel(this UILoginComponent self)
         {
-            Log.Info("显示登录页面");
             self.loginPanel.SetActive(true);
-
             self.registerPanel.SetActive(false);
-
-            // 清空注册界面输入
             self.ClearRegisterInput();
         }
 
@@ -158,68 +132,40 @@ namespace ET.Client
 
         public static bool IsValidAccount(this UILoginComponent self, string account)
         {
-            if (string.IsNullOrEmpty(account))
+            if (string.IsNullOrEmpty(account) || account.Length < 3 || account.Length > 20)
+            {
+                Log.Warning("账号格式不正确：应为3-20个字符，只能包含字母、数字和下划线");
                 return false;
+            }
 
-            if (account.Length < 3 || account.Length > 20)
-                return false;
-
-            // 只允许字母、数字和下划线
             for (int i = 0; i < account.Length; i++)
             {
                 char c = account[i];
                 if (!char.IsLetterOrDigit(c) && c != '_')
+                {
+                    Log.Warning("账号格式不正确：应为3-20个字符，只能包含字母、数字和下划线");
                     return false;
+                }
             }
-
             return true;
         }
 
         public static bool IsValidPassword(this UILoginComponent self, string password)
         {
-            if (string.IsNullOrEmpty(password))
+            if (string.IsNullOrEmpty(password) || password.Length < 6 || password.Length > 20)
+            {
+                Log.Warning("密码格式不正确：应为6-20个字符");
                 return false;
-
-            if (password.Length < 6 || password.Length > 20)
-                return false;
-
+            }
             return true;
         }
 
         public static void ClearRegisterInput(this UILoginComponent self)
         {
             if (self.reAccount != null)
-            {
                 self.reAccount.GetComponent<InputField>().text = "";
-            }
-
             if (self.rePassword != null)
-            {
                 self.rePassword.GetComponent<InputField>().text = "";
-            }
-        }
-
-        public static void SetUIInteractable(this UILoginComponent self, bool interactable)
-        {
-            if (self.reRegistrBtn != null)
-            {
-                self.reRegistrBtn.GetComponent<Button>().interactable = interactable;
-            }
-
-            if (self.returnBtn != null)
-            {
-                self.returnBtn.GetComponent<Button>().interactable = interactable;
-            }
-
-            if (self.reAccount != null)
-            {
-                self.reAccount.GetComponent<InputField>().interactable = interactable;
-            }
-
-            if (self.rePassword != null)
-            {
-                self.rePassword.GetComponent<InputField>().interactable = interactable;
-            }
         }
     }
 }

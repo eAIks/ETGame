@@ -161,11 +161,101 @@ namespace ET
         }
     }
 
+    [MemoryPackable]
+    [Message(ClientMessage.Main2NetClient_ConnectGate)]
+    [ResponseType(nameof(NetClient2Main_ConnectGate))]
+    public partial class Main2NetClient_ConnectGate : MessageObject, IRequest
+    {
+        public static Main2NetClient_ConnectGate Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(Main2NetClient_ConnectGate), isFromPool) as Main2NetClient_ConnectGate;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public int OwnerFiberId { get; set; }
+
+        /// <summary>
+        /// Gate地址
+        /// </summary>
+        [MemoryPackOrder(2)]
+        public string Address { get; set; }
+
+        /// <summary>
+        /// 登录Key
+        /// </summary>
+        [MemoryPackOrder(3)]
+        public long Key { get; set; }
+
+        /// <summary>
+        /// Gate ID
+        /// </summary>
+        [MemoryPackOrder(4)]
+        public long GateId { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.OwnerFiberId = default;
+            this.Address = default;
+            this.Key = default;
+            this.GateId = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(ClientMessage.NetClient2Main_ConnectGate)]
+    public partial class NetClient2Main_ConnectGate : MessageObject, IResponse
+    {
+        public static NetClient2Main_ConnectGate Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(NetClient2Main_ConnectGate), isFromPool) as NetClient2Main_ConnectGate;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public int Error { get; set; }
+
+        [MemoryPackOrder(2)]
+        public string Message { get; set; }
+
+        [MemoryPackOrder(3)]
+        public long PlayerId { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.Error = default;
+            this.Message = default;
+            this.PlayerId = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
     public static class ClientMessage
     {
         public const ushort Main2NetClient_Login = 1001;
         public const ushort NetClient2Main_Login = 1002;
         public const ushort Main2NetClient_Register = 1003;
         public const ushort NetClient2Main_Register = 1004;
+        public const ushort Main2NetClient_ConnectGate = 1005;
+        public const ushort NetClient2Main_ConnectGate = 1006;
     }
 }

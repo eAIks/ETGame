@@ -609,6 +609,18 @@ namespace ET
         [MemoryPackOrder(1)]
         public string Account { get; set; }
 
+        /// <summary>
+        /// 账号唯一标识符
+        /// </summary>
+        [MemoryPackOrder(2)]
+        public string AccountUUID { get; set; }
+
+        /// <summary>
+        /// 玩家在指定服务器的唯一ID
+        /// </summary>
+        [MemoryPackOrder(3)]
+        public long PlayerID { get; set; }
+
         public override void Dispose()
         {
             if (!this.IsFromPool)
@@ -618,6 +630,8 @@ namespace ET
 
             this.RpcId = default;
             this.Account = default;
+            this.AccountUUID = default;
+            this.PlayerID = default;
 
             ObjectPool.Instance.Recycle(this);
         }
@@ -647,6 +661,12 @@ namespace ET
         [MemoryPackOrder(4)]
         public long GateId { get; set; }
 
+        /// <summary>
+        /// 玩家在指定服务器的唯一ID
+        /// </summary>
+        [MemoryPackOrder(5)]
+        public long PlayerID { get; set; }
+
         public override void Dispose()
         {
             if (!this.IsFromPool)
@@ -659,6 +679,7 @@ namespace ET
             this.Message = default;
             this.Key = default;
             this.GateId = default;
+            this.PlayerID = default;
 
             ObjectPool.Instance.Recycle(this);
         }

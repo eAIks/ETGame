@@ -136,6 +136,8 @@ message R2G_GetLoginKey // IRequest
 {
 	int32 RpcId = 1;
 	string Account = 2;
+	string AccountUUID = 3;  // 账号唯一标识符
+	int64 PlayerID = 4;  // 玩家在指定服务器的唯一ID
 }
 
 message G2R_GetLoginKey // IResponse
@@ -145,6 +147,7 @@ message G2R_GetLoginKey // IResponse
 	string Message = 3;
 	int64 Key = 4;
 	int64 GateId = 5;
+	int64 PlayerID = 6;  // 玩家在指定服务器的唯一ID
 }
 
 message G2M_SessionDisconnect // ILocationMessage
@@ -175,3 +178,4 @@ message M2M_UnitTransferResponse // IResponse
 	int32 Error = 2;
 	string Message = 3;
 }
+

@@ -35,3 +35,22 @@ message NetClient2Main_Register // IResponse
 	int32 Error = 2;
 	string Message = 3;
 }
+
+// ResponseType NetClient2Main_ConnectGate
+message Main2NetClient_ConnectGate // IRequest
+{
+	int32 RpcId = 1;
+	int32 OwnerFiberId = 2;
+	string Address = 3;		// Gate地址
+	int64 Key = 4; 			// 登录Key
+	int64 GateId = 5;		// Gate ID
+}
+
+message NetClient2Main_ConnectGate // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	
+	int64 PlayerId = 4;
+}

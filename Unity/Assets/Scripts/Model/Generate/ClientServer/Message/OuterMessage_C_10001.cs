@@ -722,6 +722,12 @@ namespace ET
         [MemoryPackOrder(5)]
         public long GateId { get; set; }
 
+        /// <summary>
+        /// 账号唯一标识符
+        /// </summary>
+        [MemoryPackOrder(6)]
+        public string AccountUUID { get; set; }
+
         public override void Dispose()
         {
             if (!this.IsFromPool)
@@ -735,6 +741,7 @@ namespace ET
             this.Address = default;
             this.Key = default;
             this.GateId = default;
+            this.AccountUUID = default;
 
             ObjectPool.Instance.Recycle(this);
         }
@@ -1155,6 +1162,265 @@ namespace ET
         }
     }
 
+    // 服务器信息协议消息
+    [MemoryPackable]
+    [Message(OuterMessage.ServerInfoProto)]
+    public partial class ServerInfoProto : MessageObject
+    {
+        public static ServerInfoProto Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(ServerInfoProto), isFromPool) as ServerInfoProto;
+        }
+
+        [MemoryPackOrder(0)]
+        public int ServerId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public string ServerName { get; set; }
+
+        [MemoryPackOrder(2)]
+        public string ServerIP { get; set; }
+
+        [MemoryPackOrder(3)]
+        public int ServerPort { get; set; }
+
+        /// <summary>
+        /// ServerStatus枚举值
+        /// </summary>
+        [MemoryPackOrder(4)]
+        public int Status { get; set; }
+
+        [MemoryPackOrder(5)]
+        public int OnlineCount { get; set; }
+
+        [MemoryPackOrder(6)]
+        public int MaxCount { get; set; }
+
+        [MemoryPackOrder(7)]
+        public bool IsNew { get; set; }
+
+        [MemoryPackOrder(8)]
+        public bool IsRecommend { get; set; }
+
+        [MemoryPackOrder(9)]
+        public long OpenTime { get; set; }
+
+        [MemoryPackOrder(10)]
+        public int ZoneId { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.ServerId = default;
+            this.ServerName = default;
+            this.ServerIP = default;
+            this.ServerPort = default;
+            this.Status = default;
+            this.OnlineCount = default;
+            this.MaxCount = default;
+            this.IsNew = default;
+            this.IsRecommend = default;
+            this.OpenTime = default;
+            this.ZoneId = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    // 服务器区组协议消息
+    [MemoryPackable]
+    [Message(OuterMessage.ServerZoneProto)]
+    public partial class ServerZoneProto : MessageObject
+    {
+        public static ServerZoneProto Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(ServerZoneProto), isFromPool) as ServerZoneProto;
+        }
+
+        [MemoryPackOrder(0)]
+        public int ZoneId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public string ZoneName { get; set; }
+
+        [MemoryPackOrder(2)]
+        public List<ServerInfoProto> ServerList { get; set; } = new();
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.ZoneId = default;
+            this.ZoneName = default;
+            this.ServerList.Clear();
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(OuterMessage.C2R_GetServerList)]
+    [ResponseType(nameof(R2C_GetServerList))]
+    public partial class C2R_GetServerList : MessageObject, ISessionRequest
+    {
+        public static C2R_GetServerList Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(C2R_GetServerList), isFromPool) as C2R_GetServerList;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(OuterMessage.R2C_GetServerList)]
+    public partial class R2C_GetServerList : MessageObject, ISessionResponse
+    {
+        public static R2C_GetServerList Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(R2C_GetServerList), isFromPool) as R2C_GetServerList;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public int Error { get; set; }
+
+        [MemoryPackOrder(2)]
+        public string Message { get; set; }
+
+        [MemoryPackOrder(3)]
+        public List<ServerZoneProto> ZoneList { get; set; } = new();
+
+        [MemoryPackOrder(4)]
+        public int LastLoginServerId { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.Error = default;
+            this.Message = default;
+            this.ZoneList.Clear();
+            this.LastLoginServerId = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(OuterMessage.C2R_SelectServer)]
+    [ResponseType(nameof(R2C_SelectServer))]
+    public partial class C2R_SelectServer : MessageObject, ISessionRequest
+    {
+        public static C2R_SelectServer Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(C2R_SelectServer), isFromPool) as C2R_SelectServer;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public int ServerId { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.ServerId = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(OuterMessage.R2C_SelectServer)]
+    public partial class R2C_SelectServer : MessageObject, ISessionResponse
+    {
+        public static R2C_SelectServer Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(R2C_SelectServer), isFromPool) as R2C_SelectServer;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public int Error { get; set; }
+
+        [MemoryPackOrder(2)]
+        public string Message { get; set; }
+
+        [MemoryPackOrder(3)]
+        public string ServerAddress { get; set; }
+
+        [MemoryPackOrder(4)]
+        public long Key { get; set; }
+
+        [MemoryPackOrder(5)]
+        public long GateId { get; set; }
+
+        /// <summary>
+        /// 账号唯一标识符
+        /// </summary>
+        [MemoryPackOrder(6)]
+        public string AccountUUID { get; set; }
+
+        /// <summary>
+        /// 玩家在指定服务器的唯一ID
+        /// </summary>
+        [MemoryPackOrder(7)]
+        public long PlayerID { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.Error = default;
+            this.Message = default;
+            this.ServerAddress = default;
+            this.Key = default;
+            this.GateId = default;
+            this.AccountUUID = default;
+            this.PlayerID = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
     public static class OuterMessage
     {
         public const ushort HttpGetRouterResponse = 10002;
@@ -1193,5 +1459,11 @@ namespace ET
         public const ushort M2C_TransferMap = 10035;
         public const ushort C2G_Benchmark = 10036;
         public const ushort G2C_Benchmark = 10037;
+        public const ushort ServerInfoProto = 10038;
+        public const ushort ServerZoneProto = 10039;
+        public const ushort C2R_GetServerList = 10040;
+        public const ushort R2C_GetServerList = 10041;
+        public const ushort C2R_SelectServer = 10042;
+        public const ushort R2C_SelectServer = 10043;
     }
 }

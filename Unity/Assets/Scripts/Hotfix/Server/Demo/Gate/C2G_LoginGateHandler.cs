@@ -51,6 +51,7 @@ namespace ET.Server
             }
 
             response.PlayerId = player.Id;
+            
             await ETTask.CompletedTask;
         }
 

@@ -1,0 +1,5 @@
+{"dict": [
+[1, {"_t":"ServerGroupConfig","_id":1,"GroupName":"新手村","Region":"华东","MaxPlayers":5000,"Status":1,"OpenTime":1640995200000}],
+[2, {"_t":"ServerGroupConfig","_id":2,"GroupName":"勇士城","Region":"华南","MaxPlayers":8000,"Status":1,"OpenTime":1640995200000}],
+[3, {"_t":"ServerGroupConfig","_id":3,"GroupName":"王者谷","Region":"华北","MaxPlayers":10000,"Status":1,"OpenTime":1641081600000}],
+]}
