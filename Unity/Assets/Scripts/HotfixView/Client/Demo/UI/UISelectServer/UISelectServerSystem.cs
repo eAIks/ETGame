@@ -559,10 +559,11 @@ namespace ET.Client
             if (server == null)
             {
                 Log.Error("UISelectServerSystem: 没有选中的服务器");
+                // TODO: 显示用户友好的错误提示
                 return;
             }
             
-            Log.Info($"UISelectServerSystem: 进入游戏，服务器: {server.ServerName}");
+            Log.Info($"UISelectServerSystem: 开始进入游戏流程，服务器: {server.ServerName}");
             
             try
             {
@@ -574,28 +575,56 @@ namespace ET.Client
                     return;
                 }
 
-                // 调用服务器选择接口
-                Log.Info($"UISelectServerSystem: 正在选择服务器: {server.ServerName} (ID: {server.ServerId})");
+                // 禁用进入游戏按钮，防止重复点击
+                if (self.enterGameBtn != null)
+                {
+                    self.enterGameBtn.GetComponent<UnityEngine.UI.Button>().interactable = false;
+                }
+
+                // 步骤1: 连接服务器
+                Log.Info($"UISelectServerSystem: 步骤1 - 正在连接服务器: {server.ServerName} (ID: {server.ServerId})");
                 var result = await serverListComp.SelectServer(server.ServerId);
                 
-                if (result.success)
+                if (!result.success)
                 {
-                    Log.Info($"UISelectServerSystem: 服务器选择成功，地址: {result.address}, Key: {result.key}, GateId: {result.gateId}");
-                    
-                    // 更新当前服务器
-                    serverListComp.CurrentServer = server;
-                    serverListComp.LastLoginServer = server;
-                    
-                    // 现在连接Gate服务器
-                    await self.ConnectToGate(result.address, result.key, result.gateId);
-                    
-                    // 关闭选择服务器界面，进入游戏大厅
-                    await UIHelper.Remove(scene, UIType.UISelectServer);
-                    await UIHelper.Create(scene, UIType.UILobby, UILayer.Mid);
+                    Log.Error($"UISelectServerSystem: 服务器连接失败: {server.ServerName}");
+                    // TODO: 显示"服务器连接失败"的用户提示
+                    return;
                 }
-                else
+
+                Log.Info($"UISelectServerSystem: 服务器连接成功，地址: {result.address}");
+                
+                // 更新当前服务器信息
+                serverListComp.CurrentServer = server;
+                serverListComp.LastLoginServer = server;
+                
+                // 步骤2: 连接Gate服务器
+                Log.Info("UISelectServerSystem: 步骤2 - 正在连接Gate服务器");
+                await self.ConnectToGate(result.address, result.key, result.gateId);
+                Log.Info("UISelectServerSystem: Gate服务器连接成功");
+                
+                // 步骤3: 查询或创建角色数据
+                Log.Info("UISelectServerSystem: 步骤3 - 正在查询角色数据，如不存在将根据配表创建新角色");
+                
+                try 
                 {
-                    Log.Error($"UISelectServerSystem: 选择服务器失败: {server.ServerName}");
+                    // 发送C2G_EnterMap消息，服务器会自动:
+                    // 1. 查询数据库中的玩家数据
+                    // 2. 如果没有数据，根据UserBase配表创建新角色
+                    // 3. 将角色数据应用到游戏世界中
+                    await EnterMapHelper.EnterMapAsync(scene);
+                    
+                    Log.Info("UISelectServerSystem: 角色数据查询/创建完成，已成功进入游戏");
+                    
+                    // 关闭选择服务器界面
+                    await UIHelper.Remove(scene, UIType.UISelectServer);
+                    
+                }
+                catch (System.Exception ex)
+                {
+                    Log.Error($"UISelectServerSystem: 角色数据处理失败: {ex.Message}");
+                    // TODO: 显示"角色数据加载失败"的用户提示
+                    return;
                 }
                 
             }
@@ -603,6 +632,15 @@ namespace ET.Client
             {
                 Log.Error($"UISelectServerSystem: 进入游戏失败: {e.Message}");
                 Log.Error($"UISelectServerSystem: 异常堆栈: {e.StackTrace}");
+                // TODO: 显示通用错误提示
+            }
+            finally
+            {
+                // 重新启用进入游戏按钮
+                if (self.enterGameBtn != null)
+                {
+                    self.enterGameBtn.GetComponent<UnityEngine.UI.Button>().interactable = true;
+                }
             }
         }
         

@@ -1421,6 +1421,231 @@ namespace ET
         }
     }
 
+    [MemoryPackable]
+    [Message(OuterMessage.C2G_GenerateEquipment)]
+    [ResponseType(nameof(G2C_GenerateEquipment))]
+    public partial class C2G_GenerateEquipment : MessageObject, ISessionRequest
+    {
+        public static C2G_GenerateEquipment Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(C2G_GenerateEquipment), isFromPool) as C2G_GenerateEquipment;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(OuterMessage.G2C_GenerateEquipment)]
+    public partial class G2C_GenerateEquipment : MessageObject, ISessionResponse
+    {
+        public static G2C_GenerateEquipment Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(G2C_GenerateEquipment), isFromPool) as G2C_GenerateEquipment;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public int Error { get; set; }
+
+        [MemoryPackOrder(2)]
+        public string Message { get; set; }
+
+        [MemoryPackOrder(3)]
+        public EquipmentProto Equipment { get; set; }
+
+        [MemoryPackOrder(4)]
+        public int SlotIndex { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.Error = default;
+            this.Message = default;
+            this.Equipment = default;
+            this.SlotIndex = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(OuterMessage.C2G_ReplaceEquipment)]
+    [ResponseType(nameof(G2C_ReplaceEquipment))]
+    public partial class C2G_ReplaceEquipment : MessageObject, ISessionRequest
+    {
+        public static C2G_ReplaceEquipment Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(C2G_ReplaceEquipment), isFromPool) as C2G_ReplaceEquipment;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        /// <summary>
+        /// 要穿戴的装备ID
+        /// </summary>
+        [MemoryPackOrder(1)]
+        public long EquipmentId { get; set; }
+
+        /// <summary>
+        /// 装备槽位索引
+        /// </summary>
+        [MemoryPackOrder(2)]
+        public int SlotIndex { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.EquipmentId = default;
+            this.SlotIndex = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(OuterMessage.G2C_ReplaceEquipment)]
+    public partial class G2C_ReplaceEquipment : MessageObject, ISessionResponse
+    {
+        public static G2C_ReplaceEquipment Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(G2C_ReplaceEquipment), isFromPool) as G2C_ReplaceEquipment;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public int Error { get; set; }
+
+        [MemoryPackOrder(2)]
+        public string Message { get; set; }
+
+        /// <summary>
+        /// 是否成功穿戴
+        /// </summary>
+        [MemoryPackOrder(3)]
+        public bool Success { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.Error = default;
+            this.Message = default;
+            this.Success = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    // 装备协议消息
+    [MemoryPackable]
+    [Message(OuterMessage.EquipmentProto)]
+    public partial class EquipmentProto : MessageObject
+    {
+        public static EquipmentProto Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(EquipmentProto), isFromPool) as EquipmentProto;
+        }
+
+        /// <summary>
+        /// 装备唯一ID
+        /// </summary>
+        [MemoryPackOrder(0)]
+        public long Id { get; set; }
+
+        /// <summary>
+        /// 装备名称
+        /// </summary>
+        [MemoryPackOrder(1)]
+        public string Name { get; set; }
+
+        /// <summary>
+        /// 装备等级
+        /// </summary>
+        [MemoryPackOrder(2)]
+        public int Level { get; set; }
+
+        /// <summary>
+        /// 攻击力
+        /// </summary>
+        [MemoryPackOrder(3)]
+        public int Attack { get; set; }
+
+        /// <summary>
+        /// 防御力
+        /// </summary>
+        [MemoryPackOrder(4)]
+        public int Defense { get; set; }
+
+        /// <summary>
+        /// 生命值
+        /// </summary>
+        [MemoryPackOrder(5)]
+        public int Health { get; set; }
+
+        /// <summary>
+        /// 装备品质
+        /// </summary>
+        [MemoryPackOrder(6)]
+        public int Quality { get; set; }
+
+        /// <summary>
+        /// 装备类型(武器、护甲等)
+        /// </summary>
+        [MemoryPackOrder(7)]
+        public int EquipType { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.Id = default;
+            this.Name = default;
+            this.Level = default;
+            this.Attack = default;
+            this.Defense = default;
+            this.Health = default;
+            this.Quality = default;
+            this.EquipType = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
     public static class OuterMessage
     {
         public const ushort HttpGetRouterResponse = 10002;
@@ -1465,5 +1690,10 @@ namespace ET
         public const ushort R2C_GetServerList = 10041;
         public const ushort C2R_SelectServer = 10042;
         public const ushort R2C_SelectServer = 10043;
+        public const ushort C2G_GenerateEquipment = 10044;
+        public const ushort G2C_GenerateEquipment = 10045;
+        public const ushort C2G_ReplaceEquipment = 10046;
+        public const ushort G2C_ReplaceEquipment = 10047;
+        public const ushort EquipmentProto = 10048;
     }
 }

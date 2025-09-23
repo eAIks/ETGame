@@ -307,3 +307,47 @@ message R2C_SelectServer // ISessionResponse
 	string AccountUUID = 7;  // 账号唯一标识符
 	int64 PlayerID = 8;  // 玩家在指定服务器的唯一ID
 }
+
+// ResponseType G2C_GenerateEquipment
+message C2G_GenerateEquipment // ISessionRequest
+{
+	int32 RpcId = 1;
+}
+
+message G2C_GenerateEquipment // ISessionResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	EquipmentProto Equipment = 4;
+	int32 SlotIndex = 5;
+}
+
+// ResponseType G2C_ReplaceEquipment  
+message C2G_ReplaceEquipment // ISessionRequest
+{
+	int32 RpcId = 1;
+	int64 EquipmentId = 2;  // 要穿戴的装备ID
+	int32 SlotIndex = 3;    // 装备槽位索引
+}
+
+message G2C_ReplaceEquipment // ISessionResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	bool Success = 4;       // 是否成功穿戴
+}
+
+// 装备协议消息
+message EquipmentProto
+{
+	int64 Id = 1;           // 装备唯一ID
+	string Name = 2;        // 装备名称
+	int32 Level = 3;        // 装备等级
+	int32 Attack = 4;       // 攻击力
+	int32 Defense = 5;      // 防御力
+	int32 Health = 6;       // 生命值
+	int32 Quality = 7;      // 装备品质
+	int32 EquipType = 8;    // 装备类型(武器、护甲等)
+}

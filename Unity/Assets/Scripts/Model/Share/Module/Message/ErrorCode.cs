@@ -29,5 +29,30 @@ namespace ET
         public const int ERR_ServerMaintenance = 200011;       // 服务器维护中
         public const int ERR_ServerFull = 200012;              // 服务器已满
         public const int ERR_ServerSelectFailed = 200013;      // 选择服务器失败
+        
+        // 装备相关错误码
+        public const int ERR_UnitNotFound = 200014;            // 玩家Unit不存在
+        public const int ERR_ComponentNotFound = 200015;       // 组件不存在
+        public const int ERR_EquipmentNotFound = 200016;       // 装备不存在
+        public const int ERR_SlotIndexInvalid = 200017;        // 槽位索引无效
+        public const int ERR_EquipmentTypeNotMatch = 200018;   // 装备类型与槽位不匹配
+        public const int ERR_EquipFailed = 200019;             // 装备穿戴失败
+        public const int ERR_InternalError = 200020;           // 服务器内部错误
+        public const int ERR_SessionPlayerError = 200021;      // 会话玩家信息错误
+        public const int ERR_PlayerComponentError = 200022;    // 玩家组件信息错误
+        public const int ERR_PlayerNotFound = 200023;          // 玩家不存在
+        
+        // 装备生成相关错误码
+        public const int ERR_SessionPlayerInvalid = 200024;    // 玩家会话无效
+        public const int ERR_MapConfigNotFound = 200025;       // Map服务器配置未找到
+        public const int ERR_MapServerNoResponse = 200026;     // Map服务器无响应
+        public const int ERR_MapActorNotFound = 200027;        // 找不到Map服务器Actor
+        public const int ERR_GenerateEquipmentFailed = 200028; // 装备生成失败
+        
+        // 装备替换相关错误码
+        public const int ERR_ReplaceMapConfigNotFound = 200029;    // 装备替换Map配置未找到
+        public const int ERR_ReplaceMapServerNoResponse = 200030;  // 装备替换Map服务器无响应
+        public const int ERR_ReplaceMapActorNotFound = 200031;     // 装备替换找不到Map服务器Actor
+        public const int ERR_ReplaceEquipmentFailed = 200032;      // 装备替换失败
     }
 }

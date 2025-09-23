@@ -28,5 +28,19 @@
 	    public const int AOIPct = AOI * 10 + 3;
 	    public const int AOIFinalAdd = AOI * 10 + 4;
 	    public const int AOIFinalPct = AOI * 10 + 5;
+
+	    public const int Attack = 1004;
+	    public const int AttackBase = Attack * 10 + 1;
+	    public const int AttackAdd = Attack * 10 + 2;
+	    public const int AttackPct = Attack * 10 + 3;
+	    public const int AttackFinalAdd = Attack * 10 + 4;
+	    public const int AttackFinalPct = Attack * 10 + 5;
+
+	    public const int Defense = 1005;
+	    public const int DefenseBase = Defense * 10 + 1;
+	    public const int DefenseAdd = Defense * 10 + 2;
+	    public const int DefensePct = Defense * 10 + 3;
+	    public const int DefenseFinalAdd = Defense * 10 + 4;
+	    public const int DefenseFinalPct = Defense * 10 + 5;
     }
 }

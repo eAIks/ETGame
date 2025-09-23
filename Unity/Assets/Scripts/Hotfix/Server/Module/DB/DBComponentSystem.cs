@@ -12,8 +12,18 @@ namespace ET.Server
 	    [EntitySystem]
 	    private static void Awake(this DBComponent self, string dbConnection, string dbName)
 		{
-			self.mongoClient = new MongoClient(dbConnection);
-			self.database = self.mongoClient.GetDatabase(dbName);
+			Log.Info($"DBComponentSystem: 开始连接数据库 Connection={dbConnection}, DBName={dbName}");
+			try
+			{
+				self.mongoClient = new MongoClient(dbConnection);
+				self.database = self.mongoClient.GetDatabase(dbName);
+				Log.Info($"DBComponentSystem: 数据库连接成功 DBName={dbName}");
+			}
+			catch (System.Exception e)
+			{
+				Log.Error($"DBComponentSystem: 数据库连接失败 {e}");
+				throw;
+			}
 		}
 
 	    private static IMongoCollection<T> GetCollection<T>(this DBComponent self, string collection = null)

@@ -1,21 +1,13 @@
 ﻿namespace ET.Client
 {
-	[MessageHandler(SceneType.Demo)]
+	// 暂时禁用UnitComponent相关功能
+	// [MessageHandler(SceneType.Demo)]
 	public class M2C_CreateUnitsHandler: MessageHandler<Scene, M2C_CreateUnits>
 	{
 		protected override async ETTask Run(Scene root, M2C_CreateUnits message)
 		{
-			Scene currentScene = root.CurrentScene();
-			UnitComponent unitComponent = currentScene.GetComponent<UnitComponent>();
-			
-			foreach (UnitInfo unitInfo in message.Units)
-			{
-				if (unitComponent.Get(unitInfo.UnitId) != null)
-				{
-					continue;
-				}
-				Unit unit = UnitFactory.Create(currentScene, unitInfo);
-			}
+			// UnitComponent暂时未使用，忽略创建单位消息
+			Log.Warning("M2C_CreateUnitsHandler: UnitComponent暂时未使用，忽略消息");
 			await ETTask.CompletedTask;
 		}
 	}

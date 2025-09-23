@@ -20,5 +20,6 @@
 		public string Account { get; set; }
 		public string Password { get; set; }
 		public string AccountUUID { get; set; }
+		public long SessionKey { get; set; }
 	}
 }

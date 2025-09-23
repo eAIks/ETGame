@@ -40,7 +40,21 @@
       "Read(/Users/wanghongwei/Library/Logs/Unity/**)",
       "Read(/Users/wanghongwei/ET/**)",
       "Read(/Users/wanghongwei/ET/**)",
-      "Bash(./Bin/Tool:*)"
+      "Bash(./Bin/Tool:*)",
+      "Bash(../Bin/Tool:*)",
+      "Bash(./Bin/App:*)",
+      "Read(/Users/wanghongwei/Library/Logs/Unity/**)",
+      "Read(/Users/wanghongwei/Library/Logs/Unity/**)",
+      "Read(/Users/wanghongwei/Library/Logs/Unity/**)",
+      "Read(/Users/wanghongwei/Library/Logs/Unity/**)",
+      "Read(/Users/wanghongwei/Library/Logs/Unity/**)",
+      "Read(/Users/wanghongwei/Library/Logs/Unity/**)",
+      "Read(/Users/wanghongwei/Library/Logs/Unity/**)",
+      "Read(/Users/wanghongwei/Library/Logs/Unity/**)",
+      "Read(/Users/wanghongwei/Library/**)",
+      "Read(/Users/wanghongwei/Library/**)",
+      "Read(/Users/wanghongwei/Library/Logs/Unity/**)",
+      "Read(/Users/wanghongwei/Library/Logs/Unity/**)"
     ],
     "deny": [],
     "ask": []

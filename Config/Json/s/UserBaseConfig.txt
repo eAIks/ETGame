@@ -1,0 +1,3 @@
+{"dict": [
+[1, {"_t":"UserBaseConfig","_id":1,"Name":"基础角色","Health":1000,"Attack":100,"Defense":50,"ComboRate":10,"CounterRate":5,"CriticalRate":15,"LifeStealRate":5,"StunRate":2,"AntiComboRate":5,"AntiCounterRate":5,"AntiCriticalRate":5,"AntiLifeStealRate":5,"AntiStunRate":5}],
+]}

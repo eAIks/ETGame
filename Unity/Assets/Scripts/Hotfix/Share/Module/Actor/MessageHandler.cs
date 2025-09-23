@@ -8,6 +8,12 @@ namespace ET
 
         public async ETTask Handle(Entity entity, Address fromAddress, MessageObject actorMessage)
         {
+            if (entity == null)
+            {
+                Log.Error($"MessageHandler收到空实体，消息类型: {actorMessage?.GetType().FullName}, fromAddress: {fromAddress}");
+                return;
+            }
+            
             if (actorMessage is not Message msg)
             {
                 Log.Error($"消息类型转换错误: {actorMessage.GetType().FullName} to {typeof (Message).Name}");
@@ -47,6 +53,12 @@ namespace ET
         {
             try
             {
+                if (entity == null)
+                {
+                    Log.Error($"MessageHandler收到空实体，消息类型: {actorMessage?.GetType().FullName}, fromAddress: {fromAddress}");
+                    return;
+                }
+                
                 Fiber fiber = entity.Fiber();
                 if (actorMessage is not Request request)
                 {
@@ -78,10 +90,19 @@ namespace ET
                 }
                 
                 response.RpcId = rpcId;
-                fiber.Root.GetComponent<ProcessInnerSender>().Reply(fromAddress, response);
+                
+                // 添加防御性检查防止空引用异常
+                ProcessInnerSender processInnerSender = fiber.Root.GetComponent<ProcessInnerSender>();
+                if (processInnerSender == null)
+                {
+                    Log.Error($"ProcessInnerSender组件为空！Fiber: {fiber.Id}, Root: {fiber.Root?.Id}, 消息类型: {typeof(Request).FullName}");
+                    throw new Exception($"ProcessInnerSender组件未初始化，请检查服务器启动配置");
+                }
+                processInnerSender.Reply(fromAddress, response);
             }
             catch (Exception e)
             {
+                Log.Error($"处理消息失败: {actorMessage.GetType().FullName}, Entity: {entity?.GetType().FullName}, Error: {e}");
                 throw new Exception($"解释消息失败: {actorMessage.GetType().FullName}", e);
             }
         }

@@ -9,10 +9,11 @@ namespace ET.Server
         protected override async ETTask Run(Session session, C2G_LoginGate request, G2C_LoginGate response)
         {
             Scene root = session.Root();
-            string account = root.GetComponent<GateSessionKeyComponent>().Get(request.Key);
+            GateSessionKeyComponent keyComponent = root.GetComponent<GateSessionKeyComponent>();
+            string account = keyComponent.Get(request.Key);
             if (account == null)
             {
-                response.Error = ErrorCore.ERR_ConnectGateKeyError;
+                response.Error = ErrorCode.ERR_SystemError;
                 response.Message = "Gate key验证失败!";
                 return;
             }
@@ -32,8 +33,15 @@ namespace ET.Server
                 player.AddComponent<MailBoxComponent, MailBoxType>(MailBoxType.UnOrderedMessage);
                 await player.AddLocation(LocationType.Player);
 			
-                session.AddComponent<SessionPlayerComponent>().Player = player;
+                SessionPlayerComponent sessionPlayerComponent = session.AddComponent<SessionPlayerComponent>();
+                sessionPlayerComponent.Player = player;
+                sessionPlayerComponent.SessionKey = request.Key; // 保存Key用于后续获取PlayerID
                 playerSessionComponent.Session = session;
+                
+                // 获取PlayerID（用于后续角色创建，当前先记录日志）
+                long playerID = keyComponent.GetPlayerID(request.Key);
+                string accountUUID = keyComponent.GetAccountUUID(request.Key);
+                Log.Info($"新玩家登录: Account={account}, PlayerID={playerID}, UUID={accountUUID}");
             }
             else
             {
@@ -41,12 +49,21 @@ namespace ET.Server
                 PlayerRoomComponent playerRoomComponent = player.GetComponent<PlayerRoomComponent>();
                 if (playerRoomComponent.RoomActorId != default)
                 {
-                    CheckRoom(player, session).Coroutine();
+                    CheckRoom(player, session, request.Key).Coroutine();
                 }
                 else
                 {
                     PlayerSessionComponent playerSessionComponent = player.GetComponent<PlayerSessionComponent>();
                     playerSessionComponent.Session = session;
+                    
+                    // 设置SessionKey用于后续获取PlayerID和ServerId
+                    SessionPlayerComponent sessionPlayerComponent = session.AddComponent<SessionPlayerComponent>();
+                    sessionPlayerComponent.Player = player;
+                    sessionPlayerComponent.SessionKey = request.Key;
+                    
+                    // 记录用户重复登录
+                    long playerID = keyComponent.GetPlayerID(request.Key);
+                    Log.Info($"玩家重复登录: Account={account}, PlayerID={playerID}");
                 }
             }
 
@@ -55,7 +72,7 @@ namespace ET.Server
             await ETTask.CompletedTask;
         }
 
-        private static async ETTask CheckRoom(Player player, Session session)
+        private static async ETTask CheckRoom(Player player, Session session, long sessionKey)
         {
             Fiber fiber = player.Fiber();
             await fiber.WaitFrameFinish();
@@ -71,7 +88,9 @@ namespace ET.Server
             g2CReconnect.UnitInfos.AddRange(room2GateReconnect.UnitInfos);
             session.Send(g2CReconnect);
             
-            session.AddComponent<SessionPlayerComponent>().Player = player;
+            SessionPlayerComponent sessionPlayerComponent = session.AddComponent<SessionPlayerComponent>();
+            sessionPlayerComponent.Player = player;
+            sessionPlayerComponent.SessionKey = sessionKey;
             player.GetComponent<PlayerSessionComponent>().Session = session;
         }
     }

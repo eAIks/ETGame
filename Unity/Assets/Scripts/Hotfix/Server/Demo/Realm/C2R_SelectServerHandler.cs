@@ -136,6 +136,7 @@ namespace ET.Server
                 r2GGetLoginKey.Account = account;
                 r2GGetLoginKey.AccountUUID = accountUUID;  // 传递UUID给Gate
                 r2GGetLoginKey.PlayerID = playerID;  // 传递PlayerID给Gate
+                r2GGetLoginKey.ServerId = request.ServerId;  // 传递配表中的服务器ID给Gate
                 G2R_GetLoginKey g2RGetLoginKey = (G2R_GetLoginKey) await session.Fiber().Root.GetComponent<MessageSender>().Call(
                     config.ActorId, r2GGetLoginKey);
 

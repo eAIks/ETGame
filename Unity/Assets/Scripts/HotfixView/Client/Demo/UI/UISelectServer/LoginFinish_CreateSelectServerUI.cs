@@ -40,8 +40,8 @@ namespace ET.Client
             catch (System.Exception e)
             {
                 Log.Error($"LoginFinish_CreateSelectServerUI: 处理失败: {e.Message}");
-                Log.Info("LoginFinish_CreateSelectServerUI: 回退到创建Lobby界面");
-                await UIHelper.Create(scene, UIType.UILobby, UILayer.Mid);
+                Log.Info("LoginFinish_CreateSelectServerUI: 回退到切换MainScene");
+                UnityEngine.SceneManagement.SceneManager.LoadScene("MainScene");
             }
         }
         

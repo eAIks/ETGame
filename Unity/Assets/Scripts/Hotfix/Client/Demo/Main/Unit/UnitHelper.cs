@@ -4,15 +4,16 @@
     {
         public static Unit GetMyUnitFromClientScene(Scene root)
         {
-            PlayerComponent playerComponent = root.GetComponent<PlayerComponent>();
-            Scene currentScene = root.GetComponent<CurrentScenesComponent>().Scene;
-            return currentScene.GetComponent<UnitComponent>().Get(playerComponent.MyId);
+            // UnitComponent暂时未使用，直接返回null
+            Log.Warning("UnitHelper.GetMyUnitFromClientScene: UnitComponent暂时未使用");
+            return null;
         }
         
         public static Unit GetMyUnitFromCurrentScene(Scene currentScene)
         {
-            PlayerComponent playerComponent = currentScene.Root().GetComponent<PlayerComponent>();
-            return currentScene.GetComponent<UnitComponent>().Get(playerComponent.MyId);
+            // UnitComponent暂时未使用，直接返回null
+            Log.Warning("UnitHelper.GetMyUnitFromCurrentScene: UnitComponent暂时未使用");
+            return null;
         }
     }
 }

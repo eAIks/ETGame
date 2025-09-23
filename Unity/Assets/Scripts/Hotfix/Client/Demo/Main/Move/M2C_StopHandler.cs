@@ -2,22 +2,14 @@
 
 namespace ET.Client
 {
-	[MessageHandler(SceneType.Demo)]
+	// 暂时禁用UnitComponent相关功能
+	// [MessageHandler(SceneType.Demo)]
 	public class M2C_StopHandler : MessageHandler<Scene, M2C_Stop>
 	{
 		protected override async ETTask Run(Scene root, M2C_Stop message)
 		{
-			Unit unit = root.CurrentScene().GetComponent<UnitComponent>().Get(message.Id);
-			if (unit == null)
-			{
-				return;
-			}
-
-			MoveComponent moveComponent = unit.GetComponent<MoveComponent>();
-			moveComponent.Stop(message.Error == 0);
-			unit.Position = message.Position;
-			unit.Rotation = message.Rotation;
-			unit.GetComponent<ObjectWait>()?.Notify(new Wait_UnitStop() {Error = message.Error});
+			// UnitComponent暂时未使用，忽略停止移动消息
+			Log.Warning("M2C_StopHandler: UnitComponent暂时未使用，忽略消息");
 			await ETTask.CompletedTask;
 		}
 	}
