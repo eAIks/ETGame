@@ -37,7 +37,7 @@ namespace ET.Server
                     
                     DBComponent dbComponent = dbManagerComponent.GetZoneDB(root.Zone());
                     
-                    var existAccounts = await dbComponent.Query<Account>(d => d.AccountName == request.Account, "ET.AccountInfo");
+                    var existAccounts = await dbComponent.Query<Account>(d => d.AccountName == request.Account, "ET.Server.AccountInfo");
                     if (existAccounts.Count > 0)
                     {
                         response.Error = ErrorCode.ERR_AccountAlreadyRegister;

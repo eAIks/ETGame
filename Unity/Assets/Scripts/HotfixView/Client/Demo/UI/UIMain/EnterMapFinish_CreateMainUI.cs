@@ -16,8 +16,8 @@ namespace ET.Client
                 
                 if (mainComponent != null)
                 {
-                    // 立即刷新装备槽，无需等待Unit初始化
-                    mainComponent.RefreshEquipmentSlots();
+                    // 请求玩家装备数据并刷新UI
+                    await mainComponent.RequestPlayerEquipments();
                 }
                 
                 Log.Info("EnterMapFinish_CreateMainUI: 主界面创建完成");

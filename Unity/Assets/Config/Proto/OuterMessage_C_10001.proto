@@ -339,6 +339,35 @@ message G2C_ReplaceEquipment // ISessionResponse
 	bool Success = 4;       // 是否成功穿戴
 }
 
+// ResponseType G2C_CancelTempEquipment
+message C2G_CancelTempEquipment // ISessionRequest
+{
+	int32 RpcId = 1;
+}
+
+message G2C_CancelTempEquipment // ISessionResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	bool Success = 4;       // 是否成功取消
+}
+
+// ResponseType G2C_GetPlayerEquipments
+message C2G_GetPlayerEquipments // ISessionRequest
+{
+	int32 RpcId = 1;
+}
+
+message G2C_GetPlayerEquipments // ISessionResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	repeated EquipmentProto Equipments = 4;  // 装备列表
+	repeated int32 SlotIndexes = 5;          // 对应的槽位索引
+}
+
 // 装备协议消息
 message EquipmentProto
 {

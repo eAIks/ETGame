@@ -7,31 +7,28 @@ namespace ET.Server
     {
         protected override async ETTask Run(Scene scene, G2M_PlayerEnterMapRequest request, M2G_PlayerEnterMapResponse response)
         {
-            Log.Info($"G2M_PlayerEnterMapHandler: 开始处理角色进入地图请求 - Account={request.Account}, PlayerId={request.PlayerId}, ServerId={request.ServerId}");
+            Log.Info($"G2M_PlayerEnterMapHandler: 开始处理角色进入地图请求 - Account={request.Account}, ServerId={request.ServerId}");
             
             try
             {
-                // 第一步：查询或创建角色数据（这是Map服务器的核心职责）
+                // 从数据库中查找Account和ServerId，获取PlayerID，如果没有则生成并存储
                 Log.Info("G2M_PlayerEnterMapHandler: 开始查询/创建角色数据");
-                PlayerData playerData = await PlayerDataService.QueryOrCreatePlayerData(
-                    scene, request.Account, request.PlayerId, request.ServerId);
+                PlayerData playerData = await PlayerDataService.QueryOrCreatePlayerByAccountAndServerId(
+                    scene, request.Account, request.ServerId);
                     
                 if (playerData == null)
                 {
-                    Log.Error($"G2M_PlayerEnterMapHandler: 查询或创建角色数据失败: Account={request.Account}, PlayerId={request.PlayerId}");
+                    Log.Error($"G2M_PlayerEnterMapHandler: 查询或创建角色数据失败: Account={request.Account}, ServerId={request.ServerId}");
                     response.Error = ErrorCode.ERR_SystemError;
                     response.Message = "角色数据加载失败";
                     return;
                 }
                 
-                Log.Info($"G2M_PlayerEnterMapHandler: 角色数据获取成功, Name={playerData.Name}, Health={playerData.Health}, Attack={playerData.Attack}");
+                Log.Info($"G2M_PlayerEnterMapHandler: 角色数据获取成功, PlayerId={playerData.PlayerId}, Name={playerData.Name}, Health={playerData.Health}, Attack={playerData.Attack}");
 
-                // Map服务器只负责角色数据查询/创建，不创建Unit
-                // Unit的创建和场景切换应该由Gate服务器或其他专门的服务处理
-                
-                // 返回角色数据的ID，让Gate服务器知道角色已准备就绪
-                response.UnitId = request.PlayerId;
-                Log.Info($"G2M_PlayerEnterMapHandler: 角色数据处理完成，PlayerId={request.PlayerId}");
+                // 返回从数据库查询到或新生成的PlayerID
+                response.PlayerId = playerData.PlayerId;
+                Log.Info($"G2M_PlayerEnterMapHandler: 角色数据处理完成，返回PlayerId={playerData.PlayerId}");
                 
             }
             catch (System.Exception e)

@@ -4,9 +4,9 @@ namespace ET.Server
 {
     public static class PlayerDataService
     {
-        public static async ETTask<PlayerData> QueryOrCreatePlayerData(Scene scene, string account, long playerId, int serverId)
+        public static async ETTask<PlayerData> QueryOrCreatePlayerByAccountAndServerId(Scene scene, string account, int serverId)
         {
-            Log.Info($"PlayerDataService: 开始查询或创建角色数据 Account={account}, PlayerId={playerId}, ServerId={serverId}");
+            Log.Info($"PlayerDataService: 开始根据Account和ServerId查询或创建角色数据 Account={account}, ServerId={serverId}");
             
             DBManagerComponent dbManagerComponent = scene.Root().GetComponent<DBManagerComponent>();
             if (dbManagerComponent == null)
@@ -15,40 +15,59 @@ namespace ET.Server
                 return null;
             }
 
-            // 根据服务器ID构建数据库表名：game_server_<serverId>
-            string tableName = $"ET.Server.User.{serverId}";
-            Log.Info($"PlayerDataService: 使用数据库表名 {tableName}");
-            
             DBComponent dbComponent = dbManagerComponent.GetZoneDB(scene.Zone());
             Log.Info($"PlayerDataService: 获得数据库组件 Zone={scene.Zone()}");
 
-            // 使用协程锁防止并发操作同一玩家记录
-            using (await scene.Root().GetComponent<CoroutineLockComponent>().Wait(CoroutineLockType.DB, playerId % DBComponent.TaskCount))
+            // 使用协程锁防止并发操作同一账号记录
+            using (await scene.Root().GetComponent<CoroutineLockComponent>().Wait(CoroutineLockType.DB, account.GetHashCode() % DBComponent.TaskCount))
             {
-                Log.Info($"PlayerDataService: 开始查询数据库，PlayerId={playerId}");
+                // 第一步：从AccountServerInfo表获取PlayerId
+                Log.Info($"PlayerDataService: 查询AccountServerInfo表获取PlayerId - Account={account}, ServerId={serverId}");
+                var accountServerRecords = await dbComponent.Query<AccountServer>(
+                    record => record.Account == account && record.ServerId == serverId, 
+                    "ET.Server.AccountServerInfo");
                 
-                // 查询玩家表中是否存在该角色
+                if (accountServerRecords.Count == 0)
+                {
+                    Log.Error($"PlayerDataService: AccountServerInfo中未找到对应记录 Account={account}, ServerId={serverId}");
+                    return null;
+                }
+                
+                long playerId = accountServerRecords[0].PlayerID;
+                if (playerId == 0)
+                {
+                    Log.Error($"PlayerDataService: AccountServerInfo中PlayerId为0 Account={account}, ServerId={serverId}");
+                    return null;
+                }
+                
+                Log.Info($"PlayerDataService: 从AccountServerInfo获取到PlayerId={playerId}");
+                
+                // 第二步：根据PlayerId查询区服用户表
+                string tableName = $"ET.Server.User.{serverId}";
+                Log.Info($"PlayerDataService: 使用数据库表名 {tableName}");
+                
                 List<PlayerData> existingPlayers = await dbComponent.Query<PlayerData>(
-                    player => player.UserId == playerId, tableName);
+                    player => player.PlayerId == playerId, tableName);
 
-                Log.Info($"PlayerDataService: 查询结果，找到 {existingPlayers.Count} 条记录");
+                Log.Info($"PlayerDataService: 查询区服表结果，找到 {existingPlayers.Count} 条记录");
 
                 if (existingPlayers.Count > 0)
                 {
-                    // 角色已存在，更新最后登录时间
+                    // 找到已存在的玩家记录，更新最后登录时间并返回
                     PlayerData existingPlayer = existingPlayers[0];
                     existingPlayer.UpdateLastLoginTime();
                     await dbComponent.Save(existingPlayer, tableName);
                     
-                    Log.Info($"PlayerDataService: 查询到已有角色并更新登录时间: Account={account}, PlayerId={playerId}, ServerId={serverId}");
+                    Log.Info($"PlayerDataService: 查询到已有角色，PlayerId={existingPlayer.PlayerId}, Account={account}, ServerId={serverId}");
                     return existingPlayer;
                 }
                 else
                 {
-                    Log.Info($"PlayerDataService: 角色不存在，开始创建新角色");
+                    Log.Info($"PlayerDataService: 未找到角色记录，开始创建新角色，使用PlayerId={playerId}");
                     
-                    // 角色不存在，从UserBase配置初始化新角色
+                    // 没有找到记录，使用AccountServerInfo中的PlayerId创建角色
                     PlayerData newPlayerData = await CreateNewPlayerData(scene, account, playerId, serverId);
+                    
                     if (newPlayerData != null)
                     {
                         Log.Info($"PlayerDataService: 开始保存新角色到数据库，表名={tableName}");
@@ -62,6 +81,59 @@ namespace ET.Server
                     
                     return newPlayerData;
                 }
+            }
+        }
+
+        /// <summary>
+        /// 根据Account和ServerId获取PlayerID，然后查询用户数据
+        /// 这是推荐的方法，符合新的架构设计
+        /// </summary>
+        public static async ETTask<PlayerData> GetPlayerDataByAccountAndServerId(Scene scene, string account, int serverId)
+        {
+            return await QueryOrCreatePlayerByAccountAndServerId(scene, account, serverId);
+        }
+
+        /// <summary>
+        /// 根据Account和ServerId从AccountServerInfo表获取PlayerID
+        /// </summary>
+        public static async ETTask<long> GetPlayerIdByAccountAndServerId(Scene scene, string account, int serverId)
+        {
+            try
+            {
+                DBManagerComponent dbManagerComponent = scene.Root().GetComponent<DBManagerComponent>();
+                if (dbManagerComponent == null)
+                {
+                    Log.Error("GetPlayerIdByAccountAndServerId: 数据库管理组件未找到");
+                    return 0;
+                }
+
+                DBComponent dbComponent = dbManagerComponent.GetZoneDB(scene.Zone());
+                
+                // 从AccountServerInfo表获取PlayerID
+                var accountServerRecords = await dbComponent.Query<AccountServer>(
+                    record => record.Account == account && record.ServerId == serverId, 
+                    "ET.Server.AccountServerInfo");
+                
+                if (accountServerRecords.Count == 0)
+                {
+                    Log.Error($"GetPlayerIdByAccountAndServerId: AccountServerInfo中未找到对应记录 Account={account}, ServerId={serverId}");
+                    return 0;
+                }
+                
+                long playerId = accountServerRecords[0].PlayerID;
+                if (playerId == 0)
+                {
+                    Log.Error($"GetPlayerIdByAccountAndServerId: AccountServerInfo中PlayerId为0 Account={account}, ServerId={serverId}");
+                    return 0;
+                }
+                
+                Log.Info($"GetPlayerIdByAccountAndServerId: 获取到PlayerId={playerId}, Account={account}, ServerId={serverId}");
+                return playerId;
+            }
+            catch (System.Exception e)
+            {
+                Log.Error($"GetPlayerIdByAccountAndServerId failed: {e}");
+                return 0;
             }
         }
 

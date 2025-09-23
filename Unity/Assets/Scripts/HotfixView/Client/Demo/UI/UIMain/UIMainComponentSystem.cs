@@ -88,6 +88,74 @@ namespace ET.Client
             }
         }
         
+        /// <summary>
+        /// 请求玩家装备数据
+        /// </summary>
+        public static async ETTask RequestPlayerEquipments(this UIMainComponent self)
+        {
+            try
+            {
+                Scene root = self.Root();
+                
+                // 获取客户端发送组件
+                ClientSenderComponent clientSenderComponent = root.GetComponent<ClientSenderComponent>();
+                if (clientSenderComponent == null)
+                {
+                    Log.Error("ClientSenderComponent组件为空，无法请求装备数据");
+                    return;
+                }
+                
+                Log.Info("开始请求玩家装备数据");
+                
+                // 发送获取装备请求
+                C2G_GetPlayerEquipments request = C2G_GetPlayerEquipments.Create();
+                G2C_GetPlayerEquipments response = (G2C_GetPlayerEquipments)await clientSenderComponent.Call(request);
+                
+                if (response == null)
+                {
+                    Log.Error("获取装备数据响应为空");
+                    return;
+                }
+                
+                if (response.Error != ErrorCode.ERR_Success)
+                {
+                    Log.Error($"获取装备数据失败，错误码: {response.Error}, 消息: {response.Message}");
+                    return;
+                }
+                
+                // 清空现有装备数据
+                self.LocalEquipments.Clear();
+                
+                // 处理服务端返回的装备数据
+                if (response.Equipments != null && response.SlotIndexes != null)
+                {
+                    for (int i = 0; i < response.Equipments.Count && i < response.SlotIndexes.Count; i++)
+                    {
+                        EquipmentProto equipmentProto = response.Equipments[i];
+                        int slotIndex = response.SlotIndexes[i];
+                        
+                        Equipment equipment = ConvertFromEquipmentProto(equipmentProto);
+                        self.LocalEquipments[slotIndex] = equipment;
+                        
+                        Log.Info($"加载装备: {equipment.Name}, 槽位: {slotIndex}");
+                    }
+                    
+                    Log.Info($"装备数据加载完成，共加载 {response.Equipments.Count} 件装备");
+                }
+                else
+                {
+                    Log.Info("玩家暂无装备数据");
+                }
+                
+                // 刷新装备槽UI
+                self.RefreshEquipmentSlots();
+            }
+            catch (System.Exception e)
+            {
+                Log.Error($"请求玩家装备数据异常: {e.Message}");
+            }
+        }
+        
         // 新增装备到指定槽位的方法
         public static void SetEquipment(this UIMainComponent self, int slotIndex, Equipment equipment)
         {

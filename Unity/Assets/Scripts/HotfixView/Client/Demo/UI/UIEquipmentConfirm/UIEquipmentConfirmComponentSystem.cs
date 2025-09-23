@@ -147,6 +147,34 @@ namespace ET.Client
         private static async ETTask OnCancelClick(this UIEquipmentConfirmComponent self)
         {
             Scene root = self.Root();
+            
+            try
+            {
+                // 发送取消临时装备消息到服务端
+                ClientSenderComponent clientSenderComponent = root.GetComponent<ClientSenderComponent>();
+                if (clientSenderComponent != null)
+                {
+                    C2G_CancelTempEquipment request = C2G_CancelTempEquipment.Create();
+                    
+                    Log.Info("客户端发送取消临时装备请求");
+                    
+                    G2C_CancelTempEquipment response = (G2C_CancelTempEquipment)await clientSenderComponent.Call(request);
+                    
+                    if (response != null && response.Error == ErrorCode.ERR_Success)
+                    {
+                        Log.Info("取消临时装备成功");
+                    }
+                    else
+                    {
+                        Log.Warning($"取消临时装备失败: {response?.Message}");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"取消临时装备请求异常: {e}");
+            }
+            
             await UIHelper.Remove(root, UIType.UIEquipmentConfirm);
         }
         

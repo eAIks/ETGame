@@ -28,6 +28,16 @@ namespace ET.Server
                     return;
                 }
                 
+                // 获取或创建装备临时缓存组件
+                EquipmentTempCacheComponent tempCacheComponent = scene.GetComponent<EquipmentTempCacheComponent>();
+                if (tempCacheComponent == null)
+                {
+                    tempCacheComponent = scene.AddComponent<EquipmentTempCacheComponent>();
+                }
+                
+                // 缓存生成的装备
+                tempCacheComponent.CacheEquipment(request.PlayerId, newEquipment, randomSlot);
+                
                 // 转换为EquipmentProto并返回
                 response.Equipment = ConvertToEquipmentProto(newEquipment);
                 response.SlotIndex = randomSlot;

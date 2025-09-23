@@ -161,8 +161,7 @@ message G2M_PlayerEnterMapRequest // IRequest
 {
 	int32 RpcId = 1;
 	string Account = 2;
-	int64 PlayerId = 3;
-	int32 ServerId = 4;
+	int32 ServerId = 3;
 }
 
 message M2G_PlayerEnterMapResponse // IResponse
@@ -170,7 +169,7 @@ message M2G_PlayerEnterMapResponse // IResponse
 	int32 RpcId = 1;
 	int32 Error = 2;
 	string Message = 3;
-	int64 UnitId = 4;  // 创建的Unit ID
+	int64 PlayerId = 4;  // 创建的PlayerId
 }
 
 message ObjectQueryResponse // IResponse
@@ -228,5 +227,36 @@ message M2G_ReplaceEquipment // IResponse
 	int32 Error = 2;
 	string Message = 3;
 	bool Success = 4;
+}
+
+// ResponseType M2G_CancelTempEquipment
+message G2M_CancelTempEquipment // IRequest
+{
+	int32 RpcId = 1;
+	int64 PlayerId = 2;
+}
+
+message M2G_CancelTempEquipment // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	bool Success = 4;
+}
+
+// ResponseType M2G_GetPlayerEquipments
+message G2M_GetPlayerEquipments // IRequest
+{
+	int32 RpcId = 1;
+	int64 PlayerId = 2;
+}
+
+message M2G_GetPlayerEquipments // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	repeated EquipmentProto Equipments = 4;  // 装备列表
+	repeated int32 SlotIndexes = 5;          // 对应的槽位索引
 }
 

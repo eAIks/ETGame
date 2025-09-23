@@ -54,5 +54,17 @@ namespace ET
         public const int ERR_ReplaceMapServerNoResponse = 200030;  // 装备替换Map服务器无响应
         public const int ERR_ReplaceMapActorNotFound = 200031;     // 装备替换找不到Map服务器Actor
         public const int ERR_ReplaceEquipmentFailed = 200032;      // 装备替换失败
+        
+        // 装备临时缓存相关错误码
+        public const int ERR_NoTempEquipment = 200033;             // 没有临时装备
+        public const int ERR_TempEquipmentNull = 200034;           // 临时装备为空
+        public const int ERR_EquipmentMismatch = 200035;           // 装备信息不匹配
+        public const int ERR_CancelTempEquipmentFailed = 200036;   // 取消临时装备失败
+        
+        // 装备查询相关错误码
+        public const int ERR_GetPlayerEquipmentsFailed = 200037;   // 获取玩家装备失败
+        
+        // 玩家ID相关错误码
+        public const int ERR_PlayerIDInvalid = 200038;             // 玩家ID无效
     }
 }

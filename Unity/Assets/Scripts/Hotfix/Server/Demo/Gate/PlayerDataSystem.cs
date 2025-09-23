@@ -5,9 +5,9 @@ namespace ET.Server
     public static partial class PlayerDataSystem
     {
         [EntitySystem]
-        private static void Awake(this PlayerData self, long userId, string account)
+        private static void Awake(this PlayerData self, long playerId, string account)
         {
-            self.UserId = userId;
+            self.PlayerId = playerId;
             self.Account = account;
             self.CreateTime = TimeInfo.Instance.ServerNow();
             self.LastLoginTime = TimeInfo.Instance.ServerNow();

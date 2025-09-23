@@ -20,6 +20,10 @@ namespace ET.Server
             
             session.RemoveComponent<SessionAcceptTimeoutComponent>();
 
+            // 获取真正的PlayerID（从数据库获取的）
+            long playerID = keyComponent.GetPlayerID(request.Key);
+            string accountUUID = keyComponent.GetAccountUUID(request.Key);
+
             PlayerComponent playerComponent = root.GetComponent<PlayerComponent>();
             Player player = playerComponent.GetByAccount(account);
             if (player == null)
@@ -36,11 +40,9 @@ namespace ET.Server
                 SessionPlayerComponent sessionPlayerComponent = session.AddComponent<SessionPlayerComponent>();
                 sessionPlayerComponent.Player = player;
                 sessionPlayerComponent.SessionKey = request.Key; // 保存Key用于后续获取PlayerID
+                sessionPlayerComponent.PlayerID = playerID; // 缓存PlayerID避免重复查询
                 playerSessionComponent.Session = session;
                 
-                // 获取PlayerID（用于后续角色创建，当前先记录日志）
-                long playerID = keyComponent.GetPlayerID(request.Key);
-                string accountUUID = keyComponent.GetAccountUUID(request.Key);
                 Log.Info($"新玩家登录: Account={account}, PlayerID={playerID}, UUID={accountUUID}");
             }
             else
@@ -60,14 +62,16 @@ namespace ET.Server
                     SessionPlayerComponent sessionPlayerComponent = session.AddComponent<SessionPlayerComponent>();
                     sessionPlayerComponent.Player = player;
                     sessionPlayerComponent.SessionKey = request.Key;
+                    sessionPlayerComponent.PlayerID = playerID; // 缓存PlayerID避免重复查询
                     
-                    // 记录用户重复登录
-                    long playerID = keyComponent.GetPlayerID(request.Key);
                     Log.Info($"玩家重复登录: Account={account}, PlayerID={playerID}");
                 }
             }
 
-            response.PlayerId = player.Id;
+            // 返回真正的PlayerID（从数据库获取的），而不是Player实体的InstanceId
+            response.PlayerId = playerID;
+            
+            Log.Info($"Gate登录完成: Account={account}, 返回PlayerID={playerID} (Player.ID ={player.Id})");
             
             await ETTask.CompletedTask;
         }
@@ -77,8 +81,13 @@ namespace ET.Server
             Fiber fiber = player.Fiber();
             await fiber.WaitFrameFinish();
 
+            // 获取真正的PlayerID而不是Player.InstanceId
+            Scene root = session.Root();
+            GateSessionKeyComponent keyComponent = root.GetComponent<GateSessionKeyComponent>();
+            long playerID = keyComponent.GetPlayerID(sessionKey);
+
             G2Room_Reconnect g2RoomReconnect = G2Room_Reconnect.Create();
-            g2RoomReconnect.PlayerId = player.Id;
+            g2RoomReconnect.PlayerId = playerID;
             using Room2G_Reconnect room2GateReconnect = await fiber.Root.GetComponent<MessageSender>().Call(
                 player.GetComponent<PlayerRoomComponent>().RoomActorId,
                 g2RoomReconnect) as Room2G_Reconnect;
@@ -91,6 +100,7 @@ namespace ET.Server
             SessionPlayerComponent sessionPlayerComponent = session.AddComponent<SessionPlayerComponent>();
             sessionPlayerComponent.Player = player;
             sessionPlayerComponent.SessionKey = sessionKey;
+            sessionPlayerComponent.PlayerID = playerID; // 缓存PlayerID避免重复查询
             player.GetComponent<PlayerSessionComponent>().Session = session;
         }
     }

@@ -1568,6 +1568,145 @@ namespace ET
         }
     }
 
+    [MemoryPackable]
+    [Message(OuterMessage.C2G_CancelTempEquipment)]
+    [ResponseType(nameof(G2C_CancelTempEquipment))]
+    public partial class C2G_CancelTempEquipment : MessageObject, ISessionRequest
+    {
+        public static C2G_CancelTempEquipment Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(C2G_CancelTempEquipment), isFromPool) as C2G_CancelTempEquipment;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(OuterMessage.G2C_CancelTempEquipment)]
+    public partial class G2C_CancelTempEquipment : MessageObject, ISessionResponse
+    {
+        public static G2C_CancelTempEquipment Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(G2C_CancelTempEquipment), isFromPool) as G2C_CancelTempEquipment;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public int Error { get; set; }
+
+        [MemoryPackOrder(2)]
+        public string Message { get; set; }
+
+        /// <summary>
+        /// 是否成功取消
+        /// </summary>
+        [MemoryPackOrder(3)]
+        public bool Success { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.Error = default;
+            this.Message = default;
+            this.Success = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(OuterMessage.C2G_GetPlayerEquipments)]
+    [ResponseType(nameof(G2C_GetPlayerEquipments))]
+    public partial class C2G_GetPlayerEquipments : MessageObject, ISessionRequest
+    {
+        public static C2G_GetPlayerEquipments Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(C2G_GetPlayerEquipments), isFromPool) as C2G_GetPlayerEquipments;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(OuterMessage.G2C_GetPlayerEquipments)]
+    public partial class G2C_GetPlayerEquipments : MessageObject, ISessionResponse
+    {
+        public static G2C_GetPlayerEquipments Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(G2C_GetPlayerEquipments), isFromPool) as G2C_GetPlayerEquipments;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public int Error { get; set; }
+
+        [MemoryPackOrder(2)]
+        public string Message { get; set; }
+
+        /// <summary>
+        /// 装备列表
+        /// </summary>
+        [MemoryPackOrder(3)]
+        public List<EquipmentProto> Equipments { get; set; } = new();
+
+        /// <summary>
+        /// 对应的槽位索引
+        /// </summary>
+        [MemoryPackOrder(4)]
+        public List<int> SlotIndexes { get; set; } = new();
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.Error = default;
+            this.Message = default;
+            this.Equipments.Clear();
+            this.SlotIndexes.Clear();
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
     // 装备协议消息
     [MemoryPackable]
     [Message(OuterMessage.EquipmentProto)]
@@ -1694,6 +1833,10 @@ namespace ET
         public const ushort G2C_GenerateEquipment = 10045;
         public const ushort C2G_ReplaceEquipment = 10046;
         public const ushort G2C_ReplaceEquipment = 10047;
-        public const ushort EquipmentProto = 10048;
+        public const ushort C2G_CancelTempEquipment = 10048;
+        public const ushort G2C_CancelTempEquipment = 10049;
+        public const ushort C2G_GetPlayerEquipments = 10050;
+        public const ushort G2C_GetPlayerEquipments = 10051;
+        public const ushort EquipmentProto = 10052;
     }
 }

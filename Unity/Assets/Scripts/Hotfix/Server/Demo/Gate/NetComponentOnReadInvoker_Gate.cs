@@ -25,29 +25,46 @@ namespace ET.Server
                 }
                 case FrameMessage frameMessage:
                 {
-                    Player player = session.GetComponent<SessionPlayerComponent>().Player;
+                    SessionPlayerComponent sessionPlayerComponent = session.GetComponent<SessionPlayerComponent>();
+                    Player player = sessionPlayerComponent.Player;
                     ActorId roomActorId = player.GetComponent<PlayerRoomComponent>().RoomActorId;
-                    frameMessage.PlayerId = player.Id;
+                    
+                    // 直接从SessionPlayerComponent获取PlayerID（已在登录时缓存）
+                    long playerID = sessionPlayerComponent.PlayerID;
+                    
+                    frameMessage.PlayerId = playerID;
                     root.GetComponent<MessageSender>().Send(roomActorId, frameMessage);
                     break;
                 }
                 case IRoomMessage actorRoom:
                 {
-                    Player player = session.GetComponent<SessionPlayerComponent>().Player;
+                    SessionPlayerComponent sessionPlayerComponent = session.GetComponent<SessionPlayerComponent>();
+                    Player player = sessionPlayerComponent.Player;
                     ActorId roomActorId = player.GetComponent<PlayerRoomComponent>().RoomActorId;
-                    actorRoom.PlayerId = player.Id;
+                    
+                    // 直接从SessionPlayerComponent获取PlayerID（已在登录时缓存）
+                    long playerID = sessionPlayerComponent.PlayerID;
+                    
+                    actorRoom.PlayerId = playerID;
                     root.GetComponent<MessageSender>().Send(roomActorId, actorRoom);
                     break;
                 }
                 case ILocationMessage actorLocationMessage:
                 {
-                    long unitId = session.GetComponent<SessionPlayerComponent>().Player.Id;
+                    SessionPlayerComponent sessionPlayerComponent = session.GetComponent<SessionPlayerComponent>();
+                    
+                    // 直接从SessionPlayerComponent获取PlayerID（已在登录时缓存）
+                    long unitId = sessionPlayerComponent.PlayerID;
+                    
                     root.GetComponent<MessageLocationSenderComponent>().Get(LocationType.Unit).Send(unitId, actorLocationMessage);
                     break;
                 }
                 case ILocationRequest actorLocationRequest: // gate session收到actor rpc消息，先向actor 发送rpc请求，再将请求结果返回客户端
                 {
-                    long unitId = session.GetComponent<SessionPlayerComponent>().Player.Id;
+                    SessionPlayerComponent sessionPlayerComponent = session.GetComponent<SessionPlayerComponent>();
+                    
+                    // 直接从SessionPlayerComponent获取PlayerID（已在登录时缓存）
+                    long unitId = sessionPlayerComponent.PlayerID;
                     int rpcId = actorLocationRequest.RpcId; // 这里要保存客户端的rpcId
                     long instanceId = session.InstanceId;
                     IResponse iResponse = await root.GetComponent<MessageLocationSenderComponent>().Get(LocationType.Unit).Call(unitId, actorLocationRequest);

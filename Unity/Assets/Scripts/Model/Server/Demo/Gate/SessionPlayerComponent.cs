@@ -21,5 +21,6 @@
 		public string Password { get; set; }
 		public string AccountUUID { get; set; }
 		public long SessionKey { get; set; }
+		public long PlayerID { get; set; }
 	}
 }

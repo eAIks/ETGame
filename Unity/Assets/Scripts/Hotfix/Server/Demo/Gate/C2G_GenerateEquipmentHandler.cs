@@ -20,9 +20,19 @@ namespace ET.Server
             {
                 Scene root = session.Root();
 
+                // 直接从SessionPlayerComponent获取PlayerID（已在登录时缓存）
+                long playerID = sessionPlayerComponent.PlayerID;
+                
+                if (playerID == 0)
+                {
+                    response.Error = ErrorCode.ERR_PlayerIDInvalid;
+                    response.Message = "玩家ID无效";
+                    return;
+                }
+
                 // 创建G2M消息发送到Map服务器
                 G2M_GenerateEquipment mapRequest = G2M_GenerateEquipment.Create();
-                mapRequest.PlayerId = player.Id;
+                mapRequest.PlayerId = playerID;
                 
                 // 查找MainScene配置
                 StartSceneConfig mapConfig = null;

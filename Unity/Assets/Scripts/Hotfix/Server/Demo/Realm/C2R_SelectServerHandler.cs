@@ -87,14 +87,18 @@ namespace ET.Server
                 using (await scene.GetComponent<CoroutineLockComponent>().Wait(CoroutineLockType.DB, 
                     (account + request.ServerId.ToString()).GetHashCode()))
                 {
+                    Log.Info($"查询AccountServer记录: Account={account}, ServerId={request.ServerId}");
                     var existingRecords = await dbComponent.Query<AccountServer>(
                         record => record.Account == account && record.ServerId == request.ServerId, 
                         "ET.Server.AccountServerInfo");
+                    Log.Info($"查询结果: 找到 {existingRecords.Count} 条记录");
                     
                     if (existingRecords.Count > 0)
                     {
                         // 更新现有记录的登录时间，使用已有的PlayerID
                         var accountServer = existingRecords[0];
+                        Log.Info($"找到现有AccountServer记录: PlayerID={accountServer.PlayerID}, LoginTime={accountServer.LoginTime}");
+                        
                         accountServer.LoginTime = TimeInfo.Instance.ServerNow();
                         
                         // 更新AccountUUID（可能发生变化）
@@ -105,6 +109,10 @@ namespace ET.Server
                         {
                             accountServer.PlayerID = IdGenerater.Instance.GenerateId();
                             Log.Info($"为已有账号生成PlayerID: Account={account}, ServerId={request.ServerId}, PlayerID={accountServer.PlayerID}");
+                        }
+                        else
+                        {
+                            Log.Info($"使用现有PlayerID: Account={account}, ServerId={request.ServerId}, PlayerID={accountServer.PlayerID}");
                         }
                         
                         playerID = accountServer.PlayerID;
@@ -119,6 +127,7 @@ namespace ET.Server
                         
                         AccountServer newAccountServer = scene.AddChildWithId<AccountServer, string, int>(
                             entityId, account, request.ServerId);
+                        // 必须在Awake之后设置PlayerID和AccountUUID，因为Awake可能会重置这些值
                         newAccountServer.PlayerID = playerID;
                         newAccountServer.AccountUUID = accountUUID;
                         

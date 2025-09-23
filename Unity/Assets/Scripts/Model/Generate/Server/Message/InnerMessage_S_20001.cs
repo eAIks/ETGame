@@ -734,9 +734,6 @@ namespace ET
         public string Account { get; set; }
 
         [MemoryPackOrder(2)]
-        public long PlayerId { get; set; }
-
-        [MemoryPackOrder(3)]
         public int ServerId { get; set; }
 
         public override void Dispose()
@@ -748,7 +745,6 @@ namespace ET
 
             this.RpcId = default;
             this.Account = default;
-            this.PlayerId = default;
             this.ServerId = default;
 
             ObjectPool.Instance.Recycle(this);
@@ -774,10 +770,10 @@ namespace ET
         public string Message { get; set; }
 
         /// <summary>
-        /// 创建的Unit ID
+        /// 创建的PlayerId
         /// </summary>
         [MemoryPackOrder(3)]
-        public long UnitId { get; set; }
+        public long PlayerId { get; set; }
 
         public override void Dispose()
         {
@@ -789,7 +785,7 @@ namespace ET
             this.RpcId = default;
             this.Error = default;
             this.Message = default;
-            this.UnitId = default;
+            this.PlayerId = default;
 
             ObjectPool.Instance.Recycle(this);
         }
@@ -1049,6 +1045,150 @@ namespace ET
         }
     }
 
+    [MemoryPackable]
+    [Message(InnerMessage.G2M_CancelTempEquipment)]
+    [ResponseType(nameof(M2G_CancelTempEquipment))]
+    public partial class G2M_CancelTempEquipment : MessageObject, IRequest
+    {
+        public static G2M_CancelTempEquipment Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(G2M_CancelTempEquipment), isFromPool) as G2M_CancelTempEquipment;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public long PlayerId { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.PlayerId = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(InnerMessage.M2G_CancelTempEquipment)]
+    public partial class M2G_CancelTempEquipment : MessageObject, IResponse
+    {
+        public static M2G_CancelTempEquipment Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(M2G_CancelTempEquipment), isFromPool) as M2G_CancelTempEquipment;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public int Error { get; set; }
+
+        [MemoryPackOrder(2)]
+        public string Message { get; set; }
+
+        [MemoryPackOrder(3)]
+        public bool Success { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.Error = default;
+            this.Message = default;
+            this.Success = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(InnerMessage.G2M_GetPlayerEquipments)]
+    [ResponseType(nameof(M2G_GetPlayerEquipments))]
+    public partial class G2M_GetPlayerEquipments : MessageObject, IRequest
+    {
+        public static G2M_GetPlayerEquipments Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(G2M_GetPlayerEquipments), isFromPool) as G2M_GetPlayerEquipments;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public long PlayerId { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.PlayerId = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(InnerMessage.M2G_GetPlayerEquipments)]
+    public partial class M2G_GetPlayerEquipments : MessageObject, IResponse
+    {
+        public static M2G_GetPlayerEquipments Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(M2G_GetPlayerEquipments), isFromPool) as M2G_GetPlayerEquipments;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public int Error { get; set; }
+
+        [MemoryPackOrder(2)]
+        public string Message { get; set; }
+
+        /// <summary>
+        /// 装备列表
+        /// </summary>
+        [MemoryPackOrder(3)]
+        public List<EquipmentProto> Equipments { get; set; } = new();
+
+        /// <summary>
+        /// 对应的槽位索引
+        /// </summary>
+        [MemoryPackOrder(4)]
+        public List<int> SlotIndexes { get; set; } = new();
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.Error = default;
+            this.Message = default;
+            this.Equipments.Clear();
+            this.SlotIndexes.Clear();
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
     public static class InnerMessage
     {
         public const ushort ObjectQueryRequest = 20002;
@@ -1080,5 +1220,9 @@ namespace ET
         public const ushort M2G_GenerateEquipment = 20028;
         public const ushort G2M_ReplaceEquipment = 20029;
         public const ushort M2G_ReplaceEquipment = 20030;
+        public const ushort G2M_CancelTempEquipment = 20031;
+        public const ushort M2G_CancelTempEquipment = 20032;
+        public const ushort G2M_GetPlayerEquipments = 20033;
+        public const ushort M2G_GetPlayerEquipments = 20034;
     }
 }

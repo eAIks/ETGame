@@ -3,7 +3,7 @@ namespace ET.Server
     [ChildOf(typeof(Scene))]
     public sealed class PlayerData : Entity, IAwake<long, string>
     {
-        public long UserId { get; set; }
+        public long PlayerId { get; set; }
         public string Account { get; set; }
         public string Name { get; set; }
         public int Health { get; set; }
