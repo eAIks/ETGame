@@ -368,6 +368,34 @@ message G2C_GetPlayerEquipments // ISessionResponse
 	repeated int32 SlotIndexes = 5;          // 对应的槽位索引
 }
 
+
+// ResponseType G2C_GetPlayerRealm
+message C2G_GetPlayerRealm // ISessionRequest
+{
+	int32 RpcId = 1;
+}
+
+message G2C_GetPlayerRealm // ISessionResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	RealmInfoProto RealmInfo = 4;  // 境界信息
+}
+
+// 境界信息协议消息
+message RealmInfoProto
+{
+	int32 MajorRealm = 1;       // 大境界等级
+	int32 MinorRealm = 2;       // 小境界等级
+	int32 Level = 3;            // 角色等级
+	int64 CurrentExp = 4;       // 当前经验值
+	string MajorRealmName = 5;  // 大境界名称
+	string MinorRealmName = 6;  // 小境界名称
+	int64 SpiritStone = 7;      // 灵石数量
+	int64 ExpForNextLevel = 8;  // 升到下一级所需经验
+}
+
 // 装备协议消息
 message EquipmentProto
 {
@@ -379,4 +407,29 @@ message EquipmentProto
 	int32 Health = 6;       // 生命值
 	int32 Quality = 7;      // 装备品质
 	int32 EquipType = 8;    // 装备类型(武器、护甲等)
+	string Color = 9;       // 装备品质颜色
+	bool HasBeenEquipped = 10; // 是否曾经被穿戴过
+}
+
+// ResponseType G2C_SellEquipment
+message C2G_SellEquipment // ISessionRequest
+{
+	int32 RpcId = 1;
+	int64 EquipmentId = 2;  // 要出售的装备ID
+}
+
+message G2C_SellEquipment // ISessionResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	bool Success = 4;       // 是否成功出售
+	int64 SpiritStoneGained = 5; // 获得的灵石数量
+	int64 ExpGained = 6;    // 获得的经验值
+	bool LevelChanged = 7;  // 是否升级了
+	int32 NewLevel = 8;     // 新等级
+	int32 NewMajorRealm = 9; // 新大境界
+	int32 NewMinorRealm = 10; // 新小境界
+	int64 NewCurrentExp = 11; // 新的当前经验值
+	int64 NewSpiritStone = 12; // 新的灵石数量
 }

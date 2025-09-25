@@ -5,7 +5,6 @@ namespace ET.Server
     {
         protected override async ETTask Run(Session session, C2G_GetPlayerEquipments request, G2C_GetPlayerEquipments response)
         {
-            // 验证session和player
             SessionPlayerComponent sessionPlayerComponent = session.GetComponent<SessionPlayerComponent>();
             if (sessionPlayerComponent?.Player == null)
             {
@@ -20,7 +19,6 @@ namespace ET.Server
             {
                 Scene root = session.Root();
 
-                // 直接从SessionPlayerComponent获取PlayerID（已在登录时缓存）
                 long playerID = sessionPlayerComponent.PlayerID;
                 
                 if (playerID == 0)
@@ -30,11 +28,9 @@ namespace ET.Server
                     return;
                 }
 
-                // 创建G2M消息发送到Map服务器
                 G2M_GetPlayerEquipments mapRequest = G2M_GetPlayerEquipments.Create();
                 mapRequest.PlayerId = playerID;
                 
-                // 查找MainScene配置
                 StartSceneConfig mapConfig = null;
                 foreach (StartSceneConfig config in StartSceneConfigCategory.Instance.Maps)
                 {
@@ -69,11 +65,8 @@ namespace ET.Server
                     return;
                 }
                 
-                // 将Map服务器的响应转发给客户端
                 response.Equipments = mapResponse.Equipments;
                 response.SlotIndexes = mapResponse.SlotIndexes;
-                
-                Log.Info($"获取玩家装备成功: PlayerId={playerID}, 装备数量={response.Equipments.Count}");
             }
             catch (RpcException e) when (e.Error == ErrorCore.ERR_NotFoundActor)
             {

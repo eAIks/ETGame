@@ -38,7 +38,7 @@ namespace ET.Client
             if (self.CancelButton != null)
             {
                 self.CancelButton.onClick.RemoveAllListeners();
-                self.CancelButton.onClick.AddListener(() => { self.OnCancelClick().Coroutine(); });
+                self.CancelButton.onClick.AddListener(() => { self.OnSellClick().Coroutine(); });
             }
         }
         
@@ -74,13 +74,14 @@ namespace ET.Client
             
             if (self.QualityText != null)
             {
-                self.QualityText.text = GetQualityName(equipment.Quality);
-                self.QualityText.color = GetQualityColor(equipment.Quality);
+                var qualityConfig = EquipQualityConfigCategory.Instance.Get(equipment.Quality);
+                self.QualityText.text = qualityConfig?.QualityName ?? "未知";
+                self.QualityText.color = ParseColorFromHex(equipment.Color);
             }
             
             if (self.IconImage != null)
             {
-                self.IconImage.color = GetQualityColor(equipment.Quality);
+                self.IconImage.color = ParseColorFromHex(equipment.Color);
             }
         }
         
@@ -144,64 +145,146 @@ namespace ET.Client
             await UIHelper.Remove(root, UIType.UIEquipmentConfirm);
         }
         
-        private static async ETTask OnCancelClick(this UIEquipmentConfirmComponent self)
+        private static async ETTask OnSellClick(this UIEquipmentConfirmComponent self)
         {
+            Log.Info($"[客户端调试] OnSellClick开始执行");
+            
+            if (self.TempEquipment == null)
+            {
+                Log.Warning($"[客户端调试] TempEquipment为空，退出出售流程");
+                return;
+            }
+            
             Scene root = self.Root();
+            Log.Info($"[客户端调试] 获取root scene: {root?.GetType()?.Name}");
             
             try
             {
-                // 发送取消临时装备消息到服务端
+                // 发送出售装备消息到服务端
                 ClientSenderComponent clientSenderComponent = root.GetComponent<ClientSenderComponent>();
-                if (clientSenderComponent != null)
+                if (clientSenderComponent == null)
                 {
-                    C2G_CancelTempEquipment request = C2G_CancelTempEquipment.Create();
+                    Log.Error("ClientSenderComponent为空，无法发送装备出售请求");
+                    return;
+                }
+                
+                C2G_SellEquipment request = C2G_SellEquipment.Create();
+                request.EquipmentId = self.TempEquipment.Id;
+                
+                Log.Info($"客户端发送装备出售请求，装备ID: {request.EquipmentId}");
+                
+                Log.Info($"[客户端调试] 开始等待服务端响应...");
+                G2C_SellEquipment response = (G2C_SellEquipment)await clientSenderComponent.Call(request);
+                
+                Log.Info($"[客户端调试] 收到服务端响应，response是否为空: {response == null}");
+                
+                if (response == null)
+                {
+                    Log.Error("服务端返回的装备出售响应为空");
+                    return;
+                }
+                
+                Log.Info($"[客户端调试] 响应错误码: {response.Error}");
+                
+                if (response.Error != ErrorCode.ERR_Success)
+                {
+                    Log.Error($"装备出售失败，错误码: {response.Error}, 错误信息: {response.Message}");
+                    return;
+                }
+                
+                Log.Info($"[客户端调试] 响应成功标志: {response.Success}");
+                
+                if (response.Success)
+                {
+                    Log.Info($"装备出售成功，获得灵石: {response.SpiritStoneGained}, 经验: {response.ExpGained}");
+                    Log.Info($"[调试] 服务端返回信息: LevelChanged={response.LevelChanged}, NewLevel={response.NewLevel}, NewMajorRealm={response.NewMajorRealm}, NewMinorRealm={response.NewMinorRealm}");
                     
-                    Log.Info("客户端发送取消临时装备请求");
-                    
-                    G2C_CancelTempEquipment response = (G2C_CancelTempEquipment)await clientSenderComponent.Call(request);
-                    
-                    if (response != null && response.Error == ErrorCode.ERR_Success)
+                    // 如果角色升级了，记录日志并发布事件通知UI更新
+                    if (response.LevelChanged)
                     {
-                        Log.Info("取消临时装备成功");
+                        Log.Info($"角色升级! 新等级: {response.NewLevel}, 新境界: {response.NewMajorRealm}.{response.NewMinorRealm}, " +
+                                $"当前经验: {response.NewCurrentExp}, 灵石: {response.NewSpiritStone}");
+                        
+                        // 发布角色升级事件，通知UI更新
+                        Log.Info($"[事件发送] 准备发送PlayerLevelChangedEvent事件, root类型: {root?.GetType()?.Name}");
+                        await EventSystem.Instance.PublishAsync(root, new PlayerLevelChangedEvent
+                        {
+                            NewLevel = response.NewLevel,
+                            NewMajorRealm = response.NewMajorRealm,
+                            NewMinorRealm = response.NewMinorRealm,
+                            NewCurrentExp = response.NewCurrentExp,
+                            NewSpiritStone = response.NewSpiritStone,
+                            SpiritStoneGained = response.SpiritStoneGained,
+                            ExpGained = response.ExpGained
+                        });
+                        Log.Info($"[事件发送] PlayerLevelChangedEvent事件已发送");
                     }
                     else
                     {
-                        Log.Warning($"取消临时装备失败: {response?.Message}");
+                        // 只更新经验和灵石
+                        Log.Info($"[事件发送] 准备发送PlayerResourceChangedEvent事件");
+                        await EventSystem.Instance.PublishAsync(root, new PlayerResourceChangedEvent
+                        {
+                            NewCurrentExp = response.NewCurrentExp,
+                            NewSpiritStone = response.NewSpiritStone,
+                            SpiritStoneGained = response.SpiritStoneGained,
+                            ExpGained = response.ExpGained
+                        });
+                        Log.Info($"[事件发送] PlayerResourceChangedEvent事件已发送");
                     }
+                }
+                else
+                {
+                    Log.Warning("服务端返回装备出售失败");
                 }
             }
             catch (Exception e)
             {
-                Log.Error($"取消临时装备请求异常: {e}");
+                Log.Error($"装备出售请求异常: {e}");
             }
             
             await UIHelper.Remove(root, UIType.UIEquipmentConfirm);
         }
         
         
-        private static string GetQualityName(int quality)
+        /// <summary>
+        /// 从十六进制颜色字符串解析Unity Color
+        /// </summary>
+        private static Color ParseColorFromHex(string hexColor)
         {
-            switch (quality)
+            if (string.IsNullOrEmpty(hexColor))
             {
-                case 0: return "普通";
-                case 1: return "精良";
-                case 2: return "稀有";
-                case 3: return "史诗";
-                case 4: return "传说";
-                default: return "未知";
+                Log.Warning("装备颜色为空，使用默认白色");
+                return Color.white;
             }
-        }
-        
-        private static Color GetQualityColor(int quality)
-        {
-            switch (quality)
+            
+            // 去掉#号
+            if (hexColor.StartsWith("#"))
             {
-                case 0: return Color.white;
-                case 1: return Color.green;
-                case 2: return Color.blue;
-                case 3: return new Color(0.5f, 0, 0.5f);
-                case 4: return new Color(1f, 0.5f, 0);
-                default: return Color.gray;
+                hexColor = hexColor.Substring(1);
+            }
+            
+            // 检查颜色字符串长度
+            if (hexColor.Length != 6)
+            {
+                Log.Error($"无效的颜色格式: {hexColor}，使用默认白色");
+                return Color.white;
+            }
+            
+            try
+            {
+                // 解析RGB值
+                int r = System.Convert.ToInt32(hexColor.Substring(0, 2), 16);
+                int g = System.Convert.ToInt32(hexColor.Substring(2, 2), 16);
+                int b = System.Convert.ToInt32(hexColor.Substring(4, 2), 16);
+                
+                Color color = new Color(r / 255f, g / 255f, b / 255f, 1f);
+                return color;
+            }
+            catch (System.Exception e)
+            {
+                Log.Error($"解析颜色失败: {hexColor}，错误: {e.Message}，使用默认白色");
+                return Color.white;
             }
         }
     }

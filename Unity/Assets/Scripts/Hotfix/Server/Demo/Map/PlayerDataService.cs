@@ -73,6 +73,18 @@ namespace ET.Server
                         Log.Info($"PlayerDataService: 开始保存新角色到数据库，表名={tableName}");
                         await dbComponent.Save(newPlayerData, tableName);
                         Log.Info($"PlayerDataService: 成功创建并保存新角色: Account={account}, PlayerId={playerId}, ServerId={serverId}");
+                        
+                        // 创建新角色成功后，初始化RoleInfo数据并存储到ET.Server.User.RoleInfo表
+                        Log.Info($"PlayerDataService: 开始创建RoleInfo数据，PlayerId={playerId}");
+                        RoleInfo roleInfo = await RoleInfoDBSystem.CreateRoleFromAccountServerInfo(scene, account, serverId);
+                        if (roleInfo != null)
+                        {
+                            Log.Info($"PlayerDataService: 成功创建并保存RoleInfo数据: PlayerId={roleInfo.PlayerId}, 昵称={roleInfo.NickName}");
+                        }
+                        else
+                        {
+                            Log.Error($"PlayerDataService: 创建RoleInfo数据失败，但PlayerData已创建成功");
+                        }
                     }
                     else
                     {

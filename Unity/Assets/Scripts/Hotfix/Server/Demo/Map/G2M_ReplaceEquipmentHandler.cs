@@ -80,8 +80,22 @@ namespace ET.Server
                     return;
                 }
 
-                // 替换装备到内存
-                playerEquipmentService.SetEquippedEquipment(playerId, slotIndex, tempEquipment);
+                // 替换装备到内存，并获取旧装备
+                Equipment oldEquipment = playerEquipmentService.SetEquippedEquipment(playerId, slotIndex, tempEquipment);
+                
+                // 如果有旧装备，则自动出售获得奖励
+                if (oldEquipment != null)
+                {
+                    var (sellSuccess, spiritStone, exp, _, _, _, _, _, _) = await PlayerEquipmentServiceSystem.SellEquipment(oldEquipment, playerId, scene);
+                    if (sellSuccess)
+                    {
+                        Log.Info($"替换装备时出售旧装备成功: PlayerId={playerId}, 旧装备={oldEquipment.Name}, 灵石+{spiritStone}, 经验+{exp}");
+                    }
+                    else
+                    {
+                        Log.Warning($"替换装备时出售旧装备失败: PlayerId={playerId}, 旧装备={oldEquipment.Name}");
+                    }
+                }
                 
                 // 保存装备到数据库
                 await SaveEquipmentToDatabase(scene, playerId, slotIndex, tempEquipment);

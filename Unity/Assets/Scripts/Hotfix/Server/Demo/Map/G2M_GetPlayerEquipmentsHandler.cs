@@ -100,6 +100,11 @@ namespace ET.Server
             proto.Health = equipmentInfo.Health;
             proto.Quality = equipmentInfo.Quality;
             proto.EquipType = equipmentInfo.SlotType;
+            
+            // 从品质配置获取颜色信息
+            var qualityConfig = EquipQualityConfigCategory.Instance.Get(equipmentInfo.Quality);
+            proto.Color = qualityConfig?.Color ?? "#FFFFFF"; // 默认白色
+            
             return proto;
         }
         

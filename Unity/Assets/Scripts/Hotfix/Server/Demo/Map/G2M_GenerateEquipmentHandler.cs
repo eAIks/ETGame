@@ -9,67 +9,62 @@ namespace ET.Server
             {
                 if (scene == null)
                 {
-                    response.Error = ErrorCode.ERR_SystemError;
+                    response.Error = ErrorCode.ERR_InternalError;
                     response.Message = "Map服务器场景无效";
                     return;
                 }
 
-                // 随机生成装备槽位
-                var random = new System.Random();
-                int randomSlot = random.Next(0, 9);
-                
-                // 在Map服务器生成随机装备
-                Equipment newEquipment = GenerateRandomEquipment(randomSlot);
-                
-                if (newEquipment == null)
+                // 获取装备生成器组件
+                var equipmentGenerator = scene.GetComponent<EquipmentGeneratorComponent>();
+                if (equipmentGenerator == null)
                 {
-                    response.Error = ErrorCode.ERR_SystemError;
+                    equipmentGenerator = scene.AddComponent<EquipmentGeneratorComponent>();
+                }
+                
+                // 使用装备生成器生成装备（基于鼎炉等级）
+                bool success = await equipmentGenerator.GenerateEquipmentForPlayer(request.PlayerId);
+                if (!success)
+                {
+                    response.Error = ErrorCode.ERR_GenerateEquipmentFailed;
                     response.Message = "装备生成失败";
                     return;
                 }
                 
-                // 获取或创建装备临时缓存组件
-                EquipmentTempCacheComponent tempCacheComponent = scene.GetComponent<EquipmentTempCacheComponent>();
-                if (tempCacheComponent == null)
+                // 获取生成的装备信息
+                var equipmentTempCache = scene.GetComponent<EquipmentTempCacheComponent>();
+                if (equipmentTempCache == null)
                 {
-                    tempCacheComponent = scene.AddComponent<EquipmentTempCacheComponent>();
+                    response.Error = ErrorCode.ERR_ComponentNotFound;
+                    response.Message = "装备缓存不存在";
+                    return;
                 }
                 
-                // 缓存生成的装备
-                tempCacheComponent.CacheEquipment(request.PlayerId, newEquipment, randomSlot);
+                var equipment = equipmentTempCache.GetTempEquipment(request.PlayerId);
+                var slotIndex = equipmentTempCache.GetTempSlotIndex(request.PlayerId);
+                
+                if (equipment == null)
+                {
+                    response.Error = ErrorCode.ERR_EquipmentNotFound;
+                    response.Message = "装备未找到";
+                    return;
+                }
                 
                 // 转换为EquipmentProto并返回
-                response.Equipment = ConvertToEquipmentProto(newEquipment);
-                response.SlotIndex = randomSlot;
+                response.Equipment = ConvertToEquipmentProto(equipment);
+                response.SlotIndex = slotIndex;
                 response.Error = ErrorCode.ERR_Success;
+                response.Message = "装备生成成功";
+                
+                Log.Info($"为玩家生成装备成功: PlayerId={request.PlayerId}, Equipment={equipment.Name}, SlotIndex={slotIndex}");
             }
             catch (System.Exception e)
             {
                 Log.Error($"Map服务器生成装备异常: {e.Message}");
-                response.Error = ErrorCode.ERR_SystemError;
+                response.Error = ErrorCode.ERR_InternalError;
                 response.Message = "装备生成失败";
             }
             
             await ETTask.CompletedTask;
-        }
-        
-        private static Equipment GenerateRandomEquipment(int slot)
-        {
-            var random = new System.Random();
-            var equipment = new Equipment
-            {
-                Id = TimeInfo.Instance.ServerFrameTime(),
-                Name = $"装备{random.Next(1, 100)}",
-                SlotType = slot,
-                Attack = random.Next(10, 100),
-                Defense = random.Next(5, 50),
-                Health = random.Next(50, 200),
-                Quality = random.Next(0, 5),
-                Level = random.Next(1, 101),
-                Icon = "icon_equipment",
-                Description = "随机生成的装备"
-            };
-            return equipment;
         }
         
         private static EquipmentProto ConvertToEquipmentProto(Equipment equipment)
@@ -83,6 +78,7 @@ namespace ET.Server
             proto.Health = equipment.Health;
             proto.Quality = equipment.Quality;
             proto.EquipType = equipment.SlotType;
+            proto.Color = equipment.Color; // 设置装备品质颜色
             return proto;
         }
     }

@@ -98,9 +98,9 @@ namespace ET.Client
             
             if (equipment != null)
             {
-                Log.Info($"设置装备槽{self.SlotIndex}装备: {equipment.Name}，品质: {equipment.Quality}");
+                Log.Info($"设置装备槽{self.SlotIndex}装备: {equipment.Name}，品质: {equipment.Quality}，颜色: {equipment.Color}");
                 
-                Color qualityColor = GetQualityColor(equipment.Quality);
+                Color qualityColor = ParseColorFromHex(equipment.Color, equipment.Quality);
                 
                 // 设置背景颜色
                 if (self.BackgroundImage != null)
@@ -184,17 +184,65 @@ namespace ET.Client
         }
         
         
-        private static Color GetQualityColor(int quality)
+        /// <summary>
+        /// 从十六进制颜色字符串解析Unity Color，支持品质回退机制
+        /// </summary>
+        private static Color ParseColorFromHex(string hexColor, int quality = -1)
         {
-            switch (quality)
+            // 首先尝试解析hexColor
+            if (!string.IsNullOrEmpty(hexColor))
             {
-                case 0: return Color.white;
-                case 1: return Color.green;
-                case 2: return Color.blue;
-                case 3: return new Color(0.5f, 0, 0.5f);
-                case 4: return new Color(1f, 0.5f, 0);
-                default: return Color.gray;
+                // 去掉#号
+                if (hexColor.StartsWith("#"))
+                {
+                    hexColor = hexColor.Substring(1);
+                }
+                
+                // 检查颜色字符串长度
+                if (hexColor.Length == 6)
+                {
+                    try
+                    {
+                        // 解析RGB值
+                        int r = System.Convert.ToInt32(hexColor.Substring(0, 2), 16);
+                        int g = System.Convert.ToInt32(hexColor.Substring(2, 2), 16);
+                        int b = System.Convert.ToInt32(hexColor.Substring(4, 2), 16);
+                        
+                        Color color = new Color(r / 255f, g / 255f, b / 255f, 1f);
+                        return color;
+                    }
+                    catch (System.Exception e)
+                    {
+                        Log.Warning($"解析颜色失败: #{hexColor}，错误: {e.Message}，尝试品质回退");
+                    }
+                }
+                else
+                {
+                    Log.Warning($"无效的颜色格式: #{hexColor}，尝试品质回退");
+                }
             }
+            
+            // 颜色解析失败，尝试从品质获取颜色
+            if (quality > 0)
+            {
+                var qualityConfig = EquipQualityConfigCategory.Instance.Get(quality);
+                if (qualityConfig != null && !string.IsNullOrEmpty(qualityConfig.Color))
+                {
+                    Log.Info($"使用品质 {quality} 的配置颜色: {qualityConfig.Color}");
+                    return ParseColorFromHex(qualityConfig.Color, -1); // 避免递归
+                }
+            }
+            
+            Log.Warning("装备颜色解析失败，使用默认白色");
+            return Color.white;
+        }
+        
+        /// <summary>
+        /// 从十六进制颜色字符串解析Unity Color
+        /// </summary>
+        private static Color ParseColorFromHex(string hexColor)
+        {
+            return ParseColorFromHex(hexColor, -1);
         }
     }
 }

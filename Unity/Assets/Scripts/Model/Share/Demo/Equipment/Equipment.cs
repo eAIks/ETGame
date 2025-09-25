@@ -37,5 +37,11 @@ namespace ET
         
         [MemoryPackOrder(9)]
         public string Description { get; set; }
+        
+        [MemoryPackOrder(10)]
+        public string Color { get; set; } // 装备品质颜色
+        
+        [MemoryPackOrder(11)]
+        public bool HasBeenEquipped { get; set; } = false; // 是否曾经被穿戴过
     }
 }

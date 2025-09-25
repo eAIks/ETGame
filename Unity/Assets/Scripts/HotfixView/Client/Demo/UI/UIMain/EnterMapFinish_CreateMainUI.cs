@@ -16,8 +16,21 @@ namespace ET.Client
                 
                 if (mainComponent != null)
                 {
+                    Log.Info("EnterMapFinish_CreateMainUI: UIMainComponent创建成功，开始请求数据");
+                    
                     // 请求玩家装备数据并刷新UI
                     await mainComponent.RequestPlayerEquipments();
+                    
+                    Log.Info("EnterMapFinish_CreateMainUI: 装备数据请求完成，开始请求境界数据");
+                    
+                    // 请求玩家境界数据并刷新UI
+                    await mainComponent.RequestPlayerRealm();
+                    
+                    Log.Info("EnterMapFinish_CreateMainUI: 境界数据请求完成");
+                }
+                else
+                {
+                    Log.Error("EnterMapFinish_CreateMainUI: UIMainComponent为空，无法请求数据");
                 }
                 
                 Log.Info("EnterMapFinish_CreateMainUI: 主界面创建完成");

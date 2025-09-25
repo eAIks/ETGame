@@ -1648,7 +1648,7 @@ MonoBehaviour:
   - key: OldAttackText
     gameObject: {fileID: 7353893047651577986}
   - key: OldDefenseText
-    gameObject: {fileID: 8211204100099960117}
+    gameObject: {fileID: 2576614139812524449}
   - key: OldHealthText
     gameObject: {fileID: 8211204100099960117}
   - key: NewLabel

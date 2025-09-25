@@ -1189,6 +1189,179 @@ namespace ET
         }
     }
 
+    [MemoryPackable]
+    [Message(InnerMessage.G2M_GetPlayerRealm)]
+    [ResponseType(nameof(M2G_GetPlayerRealm))]
+    public partial class G2M_GetPlayerRealm : MessageObject, IRequest
+    {
+        public static G2M_GetPlayerRealm Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(G2M_GetPlayerRealm), isFromPool) as G2M_GetPlayerRealm;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public long PlayerId { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.PlayerId = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(InnerMessage.M2G_GetPlayerRealm)]
+    public partial class M2G_GetPlayerRealm : MessageObject, IResponse
+    {
+        public static M2G_GetPlayerRealm Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(M2G_GetPlayerRealm), isFromPool) as M2G_GetPlayerRealm;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public int Error { get; set; }
+
+        [MemoryPackOrder(2)]
+        public string Message { get; set; }
+
+        /// <summary>
+        /// 境界信息
+        /// </summary>
+        [MemoryPackOrder(3)]
+        public RealmInfoProto RealmInfo { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.Error = default;
+            this.Message = default;
+            this.RealmInfo = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(InnerMessage.G2M_SellEquipment)]
+    [ResponseType(nameof(M2G_SellEquipment))]
+    public partial class G2M_SellEquipment : MessageObject, IRequest
+    {
+        public static G2M_SellEquipment Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(G2M_SellEquipment), isFromPool) as G2M_SellEquipment;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public long PlayerId { get; set; }
+
+        [MemoryPackOrder(2)]
+        public long EquipmentId { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.PlayerId = default;
+            this.EquipmentId = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(InnerMessage.M2G_SellEquipment)]
+    public partial class M2G_SellEquipment : MessageObject, IResponse
+    {
+        public static M2G_SellEquipment Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(M2G_SellEquipment), isFromPool) as M2G_SellEquipment;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public int Error { get; set; }
+
+        [MemoryPackOrder(2)]
+        public string Message { get; set; }
+
+        [MemoryPackOrder(3)]
+        public bool Success { get; set; }
+
+        [MemoryPackOrder(4)]
+        public long SpiritStoneGained { get; set; }
+
+        [MemoryPackOrder(5)]
+        public long ExpGained { get; set; }
+
+        [MemoryPackOrder(6)]
+        public bool LevelChanged { get; set; }
+
+        [MemoryPackOrder(7)]
+        public int NewLevel { get; set; }
+
+        [MemoryPackOrder(8)]
+        public int NewMajorRealm { get; set; }
+
+        [MemoryPackOrder(9)]
+        public int NewMinorRealm { get; set; }
+
+        [MemoryPackOrder(10)]
+        public long NewCurrentExp { get; set; }
+
+        [MemoryPackOrder(11)]
+        public long NewSpiritStone { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.Error = default;
+            this.Message = default;
+            this.Success = default;
+            this.SpiritStoneGained = default;
+            this.ExpGained = default;
+            this.LevelChanged = default;
+            this.NewLevel = default;
+            this.NewMajorRealm = default;
+            this.NewMinorRealm = default;
+            this.NewCurrentExp = default;
+            this.NewSpiritStone = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
     public static class InnerMessage
     {
         public const ushort ObjectQueryRequest = 20002;
@@ -1224,5 +1397,9 @@ namespace ET
         public const ushort M2G_CancelTempEquipment = 20032;
         public const ushort G2M_GetPlayerEquipments = 20033;
         public const ushort M2G_GetPlayerEquipments = 20034;
+        public const ushort G2M_GetPlayerRealm = 20035;
+        public const ushort M2G_GetPlayerRealm = 20036;
+        public const ushort G2M_SellEquipment = 20037;
+        public const ushort M2G_SellEquipment = 20038;
     }
 }

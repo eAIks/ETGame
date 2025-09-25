@@ -66,5 +66,14 @@ namespace ET
         
         // 玩家ID相关错误码
         public const int ERR_PlayerIDInvalid = 200038;             // 玩家ID无效
+        
+        // 境界信息相关错误码
+        public const int ERR_RealmInfoGetFailed = 200039;          // 获取境界信息失败
+        public const int ERR_RoleInfoNotFound = 200040;            // 角色信息未找到
+        
+        // 装备出售相关错误码
+        public const int ERR_SellEquipmentFailed = 200041;         // 装备出售失败
+        public const int ERR_CacheComponentNotFound = 200042;      // 缓存组件未找到
+        public const int ERR_PlayerEquipmentServiceNotFound = 200043; // 玩家装备服务未找到
     }
 }

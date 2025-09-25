@@ -54,7 +54,11 @@
       "Read(/Users/wanghongwei/Library/**)",
       "Read(/Users/wanghongwei/Library/**)",
       "Read(/Users/wanghongwei/Library/Logs/Unity/**)",
-      "Read(/Users/wanghongwei/Library/Logs/Unity/**)"
+      "Read(/Users/wanghongwei/Library/Logs/Unity/**)",
+      "Read(/Users/wanghongwei/ET/**)",
+      "Bash(../../Bin/Tool:*)",
+      "Read(/Users/wanghongwei/**)",
+      "Bash(sed:*)"
     ],
     "deny": [],
     "ask": []

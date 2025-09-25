@@ -1707,6 +1707,150 @@ namespace ET
         }
     }
 
+    [MemoryPackable]
+    [Message(OuterMessage.C2G_GetPlayerRealm)]
+    [ResponseType(nameof(G2C_GetPlayerRealm))]
+    public partial class C2G_GetPlayerRealm : MessageObject, ISessionRequest
+    {
+        public static C2G_GetPlayerRealm Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(C2G_GetPlayerRealm), isFromPool) as C2G_GetPlayerRealm;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(OuterMessage.G2C_GetPlayerRealm)]
+    public partial class G2C_GetPlayerRealm : MessageObject, ISessionResponse
+    {
+        public static G2C_GetPlayerRealm Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(G2C_GetPlayerRealm), isFromPool) as G2C_GetPlayerRealm;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public int Error { get; set; }
+
+        [MemoryPackOrder(2)]
+        public string Message { get; set; }
+
+        /// <summary>
+        /// 境界信息
+        /// </summary>
+        [MemoryPackOrder(3)]
+        public RealmInfoProto RealmInfo { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.Error = default;
+            this.Message = default;
+            this.RealmInfo = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    // 境界信息协议消息
+    [MemoryPackable]
+    [Message(OuterMessage.RealmInfoProto)]
+    public partial class RealmInfoProto : MessageObject
+    {
+        public static RealmInfoProto Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(RealmInfoProto), isFromPool) as RealmInfoProto;
+        }
+
+        /// <summary>
+        /// 大境界等级
+        /// </summary>
+        [MemoryPackOrder(0)]
+        public int MajorRealm { get; set; }
+
+        /// <summary>
+        /// 小境界等级
+        /// </summary>
+        [MemoryPackOrder(1)]
+        public int MinorRealm { get; set; }
+
+        /// <summary>
+        /// 角色等级
+        /// </summary>
+        [MemoryPackOrder(2)]
+        public int Level { get; set; }
+
+        /// <summary>
+        /// 当前经验值
+        /// </summary>
+        [MemoryPackOrder(3)]
+        public long CurrentExp { get; set; }
+
+        /// <summary>
+        /// 大境界名称
+        /// </summary>
+        [MemoryPackOrder(4)]
+        public string MajorRealmName { get; set; }
+
+        /// <summary>
+        /// 小境界名称
+        /// </summary>
+        [MemoryPackOrder(5)]
+        public string MinorRealmName { get; set; }
+
+        /// <summary>
+        /// 灵石数量
+        /// </summary>
+        [MemoryPackOrder(6)]
+        public long SpiritStone { get; set; }
+
+        /// <summary>
+        /// 升到下一级所需经验
+        /// </summary>
+        [MemoryPackOrder(7)]
+        public long ExpForNextLevel { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.MajorRealm = default;
+            this.MinorRealm = default;
+            this.Level = default;
+            this.CurrentExp = default;
+            this.MajorRealmName = default;
+            this.MinorRealmName = default;
+            this.SpiritStone = default;
+            this.ExpForNextLevel = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
     // 装备协议消息
     [MemoryPackable]
     [Message(OuterMessage.EquipmentProto)]
@@ -1765,6 +1909,18 @@ namespace ET
         [MemoryPackOrder(7)]
         public int EquipType { get; set; }
 
+        /// <summary>
+        /// 装备品质颜色
+        /// </summary>
+        [MemoryPackOrder(8)]
+        public string Color { get; set; }
+
+        /// <summary>
+        /// 是否曾经被穿戴过
+        /// </summary>
+        [MemoryPackOrder(9)]
+        public bool HasBeenEquipped { get; set; }
+
         public override void Dispose()
         {
             if (!this.IsFromPool)
@@ -1780,6 +1936,137 @@ namespace ET
             this.Health = default;
             this.Quality = default;
             this.EquipType = default;
+            this.Color = default;
+            this.HasBeenEquipped = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(OuterMessage.C2G_SellEquipment)]
+    [ResponseType(nameof(G2C_SellEquipment))]
+    public partial class C2G_SellEquipment : MessageObject, ISessionRequest
+    {
+        public static C2G_SellEquipment Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(C2G_SellEquipment), isFromPool) as C2G_SellEquipment;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        /// <summary>
+        /// 要出售的装备ID
+        /// </summary>
+        [MemoryPackOrder(1)]
+        public long EquipmentId { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.EquipmentId = default;
+
+            ObjectPool.Instance.Recycle(this);
+        }
+    }
+
+    [MemoryPackable]
+    [Message(OuterMessage.G2C_SellEquipment)]
+    public partial class G2C_SellEquipment : MessageObject, ISessionResponse
+    {
+        public static G2C_SellEquipment Create(bool isFromPool = false)
+        {
+            return ObjectPool.Instance.Fetch(typeof(G2C_SellEquipment), isFromPool) as G2C_SellEquipment;
+        }
+
+        [MemoryPackOrder(0)]
+        public int RpcId { get; set; }
+
+        [MemoryPackOrder(1)]
+        public int Error { get; set; }
+
+        [MemoryPackOrder(2)]
+        public string Message { get; set; }
+
+        /// <summary>
+        /// 是否成功出售
+        /// </summary>
+        [MemoryPackOrder(3)]
+        public bool Success { get; set; }
+
+        /// <summary>
+        /// 获得的灵石数量
+        /// </summary>
+        [MemoryPackOrder(4)]
+        public long SpiritStoneGained { get; set; }
+
+        /// <summary>
+        /// 获得的经验值
+        /// </summary>
+        [MemoryPackOrder(5)]
+        public long ExpGained { get; set; }
+
+        /// <summary>
+        /// 是否升级了
+        /// </summary>
+        [MemoryPackOrder(6)]
+        public bool LevelChanged { get; set; }
+
+        /// <summary>
+        /// 新等级
+        /// </summary>
+        [MemoryPackOrder(7)]
+        public int NewLevel { get; set; }
+
+        /// <summary>
+        /// 新大境界
+        /// </summary>
+        [MemoryPackOrder(8)]
+        public int NewMajorRealm { get; set; }
+
+        /// <summary>
+        /// 新小境界
+        /// </summary>
+        [MemoryPackOrder(9)]
+        public int NewMinorRealm { get; set; }
+
+        /// <summary>
+        /// 新的当前经验值
+        /// </summary>
+        [MemoryPackOrder(10)]
+        public long NewCurrentExp { get; set; }
+
+        /// <summary>
+        /// 新的灵石数量
+        /// </summary>
+        [MemoryPackOrder(11)]
+        public long NewSpiritStone { get; set; }
+
+        public override void Dispose()
+        {
+            if (!this.IsFromPool)
+            {
+                return;
+            }
+
+            this.RpcId = default;
+            this.Error = default;
+            this.Message = default;
+            this.Success = default;
+            this.SpiritStoneGained = default;
+            this.ExpGained = default;
+            this.LevelChanged = default;
+            this.NewLevel = default;
+            this.NewMajorRealm = default;
+            this.NewMinorRealm = default;
+            this.NewCurrentExp = default;
+            this.NewSpiritStone = default;
 
             ObjectPool.Instance.Recycle(this);
         }
@@ -1837,6 +2124,11 @@ namespace ET
         public const ushort G2C_CancelTempEquipment = 10049;
         public const ushort C2G_GetPlayerEquipments = 10050;
         public const ushort G2C_GetPlayerEquipments = 10051;
-        public const ushort EquipmentProto = 10052;
+        public const ushort C2G_GetPlayerRealm = 10052;
+        public const ushort G2C_GetPlayerRealm = 10053;
+        public const ushort RealmInfoProto = 10054;
+        public const ushort EquipmentProto = 10055;
+        public const ushort C2G_SellEquipment = 10056;
+        public const ushort G2C_SellEquipment = 10057;
     }
 }

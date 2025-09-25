@@ -17,27 +17,20 @@ namespace ET.Client
                 return;
             }
 
-            // 登录相关UI元素
             self.loginBtn = rc.Get<GameObject>("LoginBtn");
             self.account = rc.Get<GameObject>("Account");
             self.password = rc.Get<GameObject>("Password");
             self.loginPanel = rc.Get<GameObject>("LoginPanel");
-            self.loginBtn.GetComponent<Button>().onClick.AddListener(() => { self.OnLogin(); });
-
-            // 注册相关UI元素（可选）
             self.registerBtn = rc.Get<GameObject>("RegisterBtn");
-
-            self.registerBtn.GetComponent<Button>().onClick.AddListener(() => { self.OnShowRegisterPanel(); });
-
-            // 注册界面UI元素（可选）
             self.reAccount = rc.Get<GameObject>("ReAccount");
             self.rePassword = rc.Get<GameObject>("RePassword");
             self.reRegistrBtn = rc.Get<GameObject>("ReRegisterBtn");
             self.returnBtn = rc.Get<GameObject>("ReturnBtn");
             self.registerPanel = rc.Get<GameObject>("RegisterPanel");
 
+            self.loginBtn.GetComponent<Button>().onClick.AddListener(() => { self.OnLogin(); });
+            self.registerBtn.GetComponent<Button>().onClick.AddListener(() => { self.OnShowRegisterPanel(); });
             self.reRegistrBtn.GetComponent<Button>().onClick.AddListener(() => { self.OnRegister(); });
-
             self.returnBtn.GetComponent<Button>().onClick.AddListener(() => { self.OnShowLoginPanel(); });
 
             self.loginPanel.SetActive(true);
@@ -128,8 +121,6 @@ namespace ET.Client
             self.ClearRegisterInput();
         }
 
- 
-
         public static bool IsValidAccount(this UILoginComponent self, string account)
         {
             if (string.IsNullOrEmpty(account) || account.Length < 3 || account.Length > 20)
@@ -143,7 +134,7 @@ namespace ET.Client
                 char c = account[i];
                 if (!char.IsLetterOrDigit(c) && c != '_')
                 {
-                    Log.Warning("账号格式不正确：应为3-20个字符，只能包含字母、数字和下划线");
+                    Log.Warning("账号格式不正确");
                     return false;
                 }
             }

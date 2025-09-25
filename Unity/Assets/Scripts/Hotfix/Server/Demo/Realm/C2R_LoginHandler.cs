@@ -19,13 +19,11 @@ namespace ET.Server
 			
 			try
 			{
-				// 查询Account记录获取或生成UUID
 				Account account = await AccountSystem.GetAccountByName(scene, request.Account);
 				
 				string accountUUID = "";
 				if (account != null)
 				{
-					// 账号存在，验证密码
 					if (account.Password != request.Password)
 					{
 						response.Error = ErrorCode.ERR_PasswordError;
@@ -33,27 +31,19 @@ namespace ET.Server
 						return;
 					}
 					
-					// 使用现有的UUID
 					accountUUID = account.AccountUUID;
 					if (string.IsNullOrEmpty(accountUUID))
 					{
-						// 为现有账号生成UUID
 						accountUUID = System.Guid.NewGuid().ToString();
 						account.AccountUUID = accountUUID;
 						
 						DBManagerComponent dbManagerComponent = scene.GetComponent<DBManagerComponent>();
 						DBComponent dbComponent = dbManagerComponent.GetZoneDB(scene.Zone());
 						await dbComponent.Save(account, "ET.Server.AccountInfo");
-						Log.Info($"为现有账号 {request.Account} 生成UUID: {accountUUID}");
-					}
-					else
-					{
-						Log.Info($"使用现有UUID: {accountUUID} for account: {request.Account}");
 					}
 				}
 				else
 				{
-					// 账号不存在，返回错误
 					response.Error = ErrorCode.ERR_AccountNotExist;
 					response.Message = "账号不存在，请先注册";
 					return;
@@ -64,11 +54,8 @@ namespace ET.Server
 				playerComp.Password = request.Password;
 				playerComp.AccountUUID = accountUUID;
 				
-				// 将UUID返回给客户端
 				response.AccountUUID = accountUUID;
 				response.Error = ErrorCode.ERR_Success;
-				
-				Log.Info($"登录成功: Account={request.Account}, UUID={accountUUID}");
 			}
 			catch (System.Exception e)
 			{

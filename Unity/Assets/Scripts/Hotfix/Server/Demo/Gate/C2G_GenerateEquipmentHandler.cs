@@ -5,7 +5,6 @@ namespace ET.Server
     {
         protected override async ETTask Run(Session session, C2G_GenerateEquipment request, G2C_GenerateEquipment response)
         {
-            // 验证session和player
             SessionPlayerComponent sessionPlayerComponent = session.GetComponent<SessionPlayerComponent>();
             if (sessionPlayerComponent?.Player == null)
             {
@@ -20,7 +19,6 @@ namespace ET.Server
             {
                 Scene root = session.Root();
 
-                // 直接从SessionPlayerComponent获取PlayerID（已在登录时缓存）
                 long playerID = sessionPlayerComponent.PlayerID;
                 
                 if (playerID == 0)
@@ -30,11 +28,9 @@ namespace ET.Server
                     return;
                 }
 
-                // 创建G2M消息发送到Map服务器
                 G2M_GenerateEquipment mapRequest = G2M_GenerateEquipment.Create();
                 mapRequest.PlayerId = playerID;
                 
-                // 查找MainScene配置
                 StartSceneConfig mapConfig = null;
                 foreach (StartSceneConfig config in StartSceneConfigCategory.Instance.Maps)
                 {
@@ -69,7 +65,6 @@ namespace ET.Server
                     return;
                 }
                 
-                // 将Map服务器的响应转发给客户端
                 response.Equipment = mapResponse.Equipment;
                 response.SlotIndex = mapResponse.SlotIndex;
             }

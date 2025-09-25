@@ -13,47 +13,26 @@ namespace ET.Client
         [EntitySystem]
         private static void Awake(this UISelectServerComponent self)
         {
-            Log.Info("UISelectServerSystem: Awake");
-            
-            // 修复AudioListener重复问题
             FixAudioListenerIssue();
-            
-            // 修复EventSystem重复问题
             FixEventSystemIssue();
             
-            // 获取UI元素引用
             ReferenceCollector rc = self.GetParent<UI>().GameObject.GetComponent<ReferenceCollector>();
-            Log.Info($"UISelectServerSystem: ReferenceCollector获取结果: {rc != null}");
             
             if (rc != null)
             {
-                Log.Info($"UISelectServerSystem: ReferenceCollector数据项数量: {rc.data.Count}");
-                foreach (var item in rc.data)
-                {
-                    Log.Info($"UISelectServerSystem: ReferenceCollector项: {item.key} -> {item.gameObject?.name}");
-                }
                 
                 self.serverNameText = rc.Get<GameObject>("ServerName");
                 self.selectServerBtn = rc.Get<GameObject>("SelectServerBtn");
                 self.enterGameBtn = rc.Get<GameObject>("EnterGameBtn");
 
-                Log.Info($"UISelectServerSystem: 绑定结果 - ServerName: {self.serverNameText?.name}, SelectServerBtn: {self.selectServerBtn?.name}, EnterGameBtn: {self.enterGameBtn?.name}");
-                
                 if (self.serverNameText != null)
                 {
                     var textComp = self.serverNameText.GetComponent<Text>();
-                    Log.Info($"UISelectServerSystem: ServerName Text组件: {textComp != null}");
                     if (textComp != null)
                     {
                         textComp.text = "1区";
-                        Log.Info("UISelectServerSystem: ServerName文本已更新为'1区'");
                     }
                 }
-                else
-                {
-                    Log.Error("UISelectServerSystem: ServerName GameObject为null");
-                }
-                // 绑定按钮事件
                 if (self.selectServerBtn != null)
                 {
                     self.selectServerBtn.GetComponent<Button>().onClick.AddListener(() =>
@@ -71,15 +50,12 @@ namespace ET.Client
                 }
             }
             
-            // 初始化服务器列表 - 异步等待完成
-            Log.Info("UISelectServerSystem: 准备调用InitializeServerList");
             self.InitializeServerListAsync().Coroutine();
         }
 
         [EntitySystem]
         private static void Destroy(this UISelectServerComponent self)
         {
-            Log.Info("UISelectServerSystem: Destroy");
         }
         
         /// <summary>
@@ -89,18 +65,10 @@ namespace ET.Client
         {
             if (server == null) return;
             
-            Log.Info($"UISelectServerSystem: 收到服务器选择事件: {server.ServerName}");
-            
-            // 更新当前选中的服务器
             self.currentSelectedServer = server;
-            
-            // 更新UI显示
             self.UpdateUI();
         }
         
-        /// <summary>
-        /// 异步初始化服务器列表包装方法
-        /// </summary>
         private static async ETTask InitializeServerListAsync(this UISelectServerComponent self)
         {
             try
@@ -110,27 +78,18 @@ namespace ET.Client
             catch (System.Exception e)
             {
                 Log.Error($"UISelectServerSystem: 初始化异常: {e.Message}");
-                Log.Error($"UISelectServerSystem: 异常堆栈: {e.StackTrace}");
-                // 异常情况下也使用默认数据
                 self.CreateDefaultServerData();
             }
             finally
             {
                 self.isInitialized = true;
-                Log.Info("UISelectServerSystem: 初始化完成，设置isInitialized为true");
             }
         }
         
-        /// <summary>
-        /// 初始化服务器列表
-        /// </summary>
         private static async ETTask InitializeServerList(this UISelectServerComponent self)
         {
-            Log.Info("UISelectServerSystem: 开始初始化服务器列表");
-            
             try
             {
-                // 等待一帧确保UI完全初始化
                 await self.Scene().GetComponent<TimerComponent>().WaitFrameAsync();
                 
                 Scene scene = self.Scene();
@@ -140,40 +99,29 @@ namespace ET.Client
                     serverListComp = scene.AddComponent<ServerListComponent>();
                 }
                 
-                // 首先尝试从服务器加载服务器列表
-                Log.Info("UISelectServerSystem: 尝试从服务器获取服务器列表");
                 bool success = await serverListComp.LoadServerListFromServer();
                 
-                Log.Info($"UISelectServerSystem: 从服务器获取结果: success={success}, ZoneList数量={serverListComp.ZoneList.Count}");
                 if (success && serverListComp.ZoneList.Count > 0)
                 {
-                    Log.Info($"UISelectServerSystem: 成功从服务器获取到 {serverListComp.ZoneList.Count} 个区组的数据");
-                    
-                    // 获取默认选中的服务器
                     ServerInfo defaultServer = self.GetDefaultSelectedServer(serverListComp);
                     if (defaultServer != null)
                     {
                         serverListComp.CurrentServer = defaultServer;
                         self.currentSelectedServer = defaultServer;
-                        Log.Info($"UISelectServerSystem: 默认选中服务器: {defaultServer.ServerName}");
                     }
                 }
                 else
                 {
-                    Log.Warning("UISelectServerSystem: 从服务器获取数据失败，使用默认测试数据");
                     self.CreateDefaultServerData();
                 }
                 
-                // 更新UI显示
                 self.UpdateUI();
                 
             }
             catch (System.Exception e)
             {
                 Log.Error($"UISelectServerSystem: 初始化服务器列表异常 {e.Message}");
-                Log.Error($"UISelectServerSystem: 异常堆栈: {e.StackTrace}");
                 
-                // 即使出错也要尝试创建默认数据
                 try 
                 {
                     self.CreateDefaultServerData();
@@ -181,52 +129,41 @@ namespace ET.Client
                 catch (System.Exception e2)
                 {
                     Log.Error($"UISelectServerSystem: 创建默认数据也失败 {e2.Message}");
-                    Log.Error($"UISelectServerSystem: 创建默认数据异常堆栈: {e2.StackTrace}");
                 }
             }
         }
         
         
-        /// <summary>
-        /// 获取默认选中的服务器
-        /// </summary>
         private static ServerInfo GetDefaultSelectedServer(this UISelectServerComponent self, ServerListComponent serverListComp)
         {
-            
-            // 其次返回推荐服务器
             foreach (var zone in serverListComp.ZoneList)
             {
                 foreach (var server in zone.ServerList)
                 {
                     if (server.IsRecommend)
                     {
-                        Log.Info($"UISelectServerSystem: 使用推荐服务器: {server.ServerName}");
                         return server;
                     }
                 }
             }
             
-            // 最后返回最新服务器
             foreach (var zone in serverListComp.ZoneList)
             {
                 foreach (var server in zone.ServerList)
                 {
                     if (server.IsNew)
                     {
-                        Log.Info($"UISelectServerSystem: 使用最新服务器: {server.ServerName}");
                         return server;
                     }
                 }
             }
             
-            // 如果都没有，返回第一个可用服务器
             foreach (var zone in serverListComp.ZoneList)
             {
                 foreach (var server in zone.ServerList)
                 {
                     if (server.Status != ServerStatus.Maintenance)
                     {
-                        Log.Info($"UISelectServerSystem: 使用第一个可用服务器: {server.ServerName}");
                         return server;
                     }
                 }
@@ -235,13 +172,8 @@ namespace ET.Client
             return null;
         }
         
-        /// <summary>
-        /// 创建默认服务器数据（用于测试或网络失败时）
-        /// </summary>
         private static void CreateDefaultServerData(this UISelectServerComponent self)
         {
-            Log.Info("UISelectServerSystem: 创建默认服务器数据");
-            
             Scene scene = self.Scene();
             ServerListComponent serverListComp = scene.GetComponent<ServerListComponent>();
             if (serverListComp == null)

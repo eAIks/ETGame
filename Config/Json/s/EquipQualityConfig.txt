@@ -1,0 +1,17 @@
+{"dict": [
+[1, {"_t":"EquipQualityConfig","_id":1,"QualityId":1,"Quality":"Common","QualityName":"凡品","BaseAttr":100,"Difference":0.3,"ExtraAttrSlots":0,"RareAffixRate":0,"Color":"#7A7A7A"}],
+[2, {"_t":"EquipQualityConfig","_id":2,"QualityId":2,"Quality":"Basic","QualityName":"普通","BaseAttr":367,"Difference":0.3,"ExtraAttrSlots":0,"RareAffixRate":0,"Color":"#B0B0B0"}],
+[3, {"_t":"EquipQualityConfig","_id":3,"QualityId":3,"Quality":"Fine","QualityName":"精良","BaseAttr":634,"Difference":0.3,"ExtraAttrSlots":0,"RareAffixRate":0,"Color":"#4CAF50"}],
+[4, {"_t":"EquipQualityConfig","_id":4,"QualityId":4,"Quality":"Superior","QualityName":"优秀","BaseAttr":901,"Difference":0.3,"ExtraAttrSlots":0,"RareAffixRate":0,"Color":"#2196F3"}],
+[5, {"_t":"EquipQualityConfig","_id":5,"QualityId":5,"Quality":"Exquisite","QualityName":"上品","BaseAttr":1168,"Difference":0.3,"ExtraAttrSlots":0,"RareAffixRate":0,"Color":"#00BCD4"}],
+[6, {"_t":"EquipQualityConfig","_id":6,"QualityId":6,"Quality":"Rare","QualityName":"稀有","BaseAttr":1435,"Difference":0.3,"ExtraAttrSlots":1,"RareAffixRate":0.3,"Color":"#9C27B0"}],
+[7, {"_t":"EquipQualityConfig","_id":7,"QualityId":7,"Quality":"Epic","QualityName":"史诗","BaseAttr":1702,"Difference":0.3,"ExtraAttrSlots":1,"RareAffixRate":0.4,"Color":"#673AB7"}],
+[8, {"_t":"EquipQualityConfig","_id":8,"QualityId":8,"Quality":"Legendary","QualityName":"传奇","BaseAttr":1969,"Difference":0.3,"ExtraAttrSlots":1,"RareAffixRate":0.5,"Color":"#FF9800"}],
+[9, {"_t":"EquipQualityConfig","_id":9,"QualityId":9,"Quality":"Ancient","QualityName":"远古","BaseAttr":2236,"Difference":0.3,"ExtraAttrSlots":1,"RareAffixRate":0.6,"Color":"#FFC107"}],
+[10, {"_t":"EquipQualityConfig","_id":10,"QualityId":10,"Quality":"Mythic","QualityName":"神话","BaseAttr":2503,"Difference":0.3,"ExtraAttrSlots":1,"RareAffixRate":0.7,"Color":"#FF5722"}],
+[11, {"_t":"EquipQualityConfig","_id":11,"QualityId":11,"Quality":"Celestial","QualityName":"仙品","BaseAttr":2770,"Difference":0.3,"ExtraAttrSlots":2,"RareAffixRate":0.2,"Color":"#00E5FF"}],
+[12, {"_t":"EquipQualityConfig","_id":12,"QualityId":12,"Quality":"Holy","QualityName":"圣品","BaseAttr":3037,"Difference":0.3,"ExtraAttrSlots":2,"RareAffixRate":0.3,"Color":"#E0E0E0"}],
+[13, {"_t":"EquipQualityConfig","_id":13,"QualityId":13,"Quality":"Primordial","QualityName":"鸿蒙","BaseAttr":3304,"Difference":0.3,"ExtraAttrSlots":2,"RareAffixRate":0.4,"Color":"#E040FB"}],
+[14, {"_t":"EquipQualityConfig","_id":14,"QualityId":14,"Quality":"Chaotic","QualityName":"混元","BaseAttr":3571,"Difference":0.3,"ExtraAttrSlots":2,"RareAffixRate":0.5,"Color":"#FF00FF"}],
+[15, {"_t":"EquipQualityConfig","_id":15,"QualityId":15,"Quality":"Eternal","QualityName":"永恒","BaseAttr":3838,"Difference":0.3,"ExtraAttrSlots":2,"RareAffixRate":0.6,"Color":"#FFFFFF"}],
+]}

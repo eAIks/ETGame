@@ -260,3 +260,42 @@ message M2G_GetPlayerEquipments // IResponse
 	repeated int32 SlotIndexes = 5;          // 对应的槽位索引
 }
 
+// ResponseType M2G_GetPlayerRealm
+message G2M_GetPlayerRealm // IRequest
+{
+	int32 RpcId = 1;
+	int64 PlayerId = 2;
+}
+
+message M2G_GetPlayerRealm // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	RealmInfoProto RealmInfo = 4;  // 境界信息
+}
+
+// ResponseType M2G_SellEquipment
+message G2M_SellEquipment // IRequest
+{
+	int32 RpcId = 1;
+	int64 PlayerId = 2;
+	int64 EquipmentId = 3;
+}
+
+message M2G_SellEquipment // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	bool Success = 4;
+	int64 SpiritStoneGained = 5;
+	int64 ExpGained = 6;
+	bool LevelChanged = 7;
+	int32 NewLevel = 8;
+	int32 NewMajorRealm = 9;
+	int32 NewMinorRealm = 10;
+	int64 NewCurrentExp = 11;
+	int64 NewSpiritStone = 12;
+}
+

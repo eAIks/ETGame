@@ -16,5 +16,11 @@ namespace ET.Client
         
         // 防重复点击标志
         public bool IsGeneratingEquipment = false;
+        
+        // 境界显示组件
+        public EntityRef<UIRealmLevel> UIRealmLevel;
+        
+        // 本地境界信息
+        public RealmInfoProto LocalRealmInfo;
     }
 }
